@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!--Toolbar工具导航控件 是 Android 5.0 推出的一个 Material Design 风格的导航控件 ,用来取代之前的 Actionbar 。-->
+    <!-- https://blog.csdn.net/h_zhang/article/details/51232773 -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+
+    <!--线性垂直布局-->
+    <LinearLayout
+        android:id="@+id/inputlinearlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/my_toolbar">
+
+        <!--ACTV 随笔提示文本组件，在输入框中输入我们想要输入的信息就会出现其他与其相关的提示信息-->
+        <!--android：completionThreshold="0" 设置输入多少字符时自动匹配 -->
+        <AutoCompleteTextView
+            android:id="@+id/posturl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textUri"
+            android:text=""></AutoCompleteTextView>
+
+        <!--设置POST URL按键-->
+        <Button
+            android:id="@+id/btnsetposturl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="SetPostUrl"
+            android:text="@string/buttontext_setposturl" />
+
+    </LinearLayout>
+
+    <!--Containers -> ViewPager2 -> 下载。 页面切换：支持垂直滚动, 重写之前的viewpager. -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpager"
+        layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputlinearlayout"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="-40dp" />
+
+    <!--Buttons -> FloatingActionButton -> 下载。 浮动按键 -->
+    <!--src 是按键的图标，复制到 res/drawalbe/log_icon.png -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingshowlog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="5dp"
+        android:src="@drawable/log_icon"
+        android:onClick="CallLogCAT"
+        app:backgroundTint="@color/white"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
