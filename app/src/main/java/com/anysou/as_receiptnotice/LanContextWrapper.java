@@ -21,14 +21,15 @@ import java.util.Locale;
  * **/
 public class LanContextWrapper extends ContextWrapper {
 
-    public LanContextWrapper(Context ctx) {
-        super(ctx);
+    public LanContextWrapper(Context context) {
+        super(context);
     }
 
     public static final String LANG_HK = "hk";
     public static final String LANG_CN = "cn";
     public static final String LANG_EN = "en";
 
+    // 根据设置的语言进行资源配置
     public static ContextWrapper wrap(Context context) {
         Locale newLocale;
         SharedPreferences sharedPreferences = context.getSharedPreferences(MainApplication.SP_NAME, MODE_PRIVATE);
@@ -84,7 +85,7 @@ public class LanContextWrapper extends ContextWrapper {
     }
 
     /**
-     * 初始化Context
+     * 初始化 配置 Context
      */
     private static Context getLanContext(Context context, Locale pNewLocale) {
         Resources res = context.getApplicationContext().getResources();  //获取 资源 Resources
@@ -103,7 +104,6 @@ public class LanContextWrapper extends ContextWrapper {
         return context;
     }
 
-
     /**
      * 获取手机设置的语言国家. CN=简体；TW/HK=繁体； 空/US=英语
      */
@@ -118,9 +118,5 @@ public class LanContextWrapper extends ContextWrapper {
         }
         return country;
     }
-
-    /***
-     * 获取手机设置
-     */
 
 }

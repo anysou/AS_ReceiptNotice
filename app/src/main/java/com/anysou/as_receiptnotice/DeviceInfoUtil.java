@@ -14,10 +14,8 @@ import java.util.UUID;
  * **/
 
 public class DeviceInfoUtil {
-        /**
-         * Return pseudo unique ID
-         * @return ID
-         */
+
+
         public static String getUniquePsuedoID() {
                 // If all else fails, if the user does have lower than API 9 (lower
                 // than Gingerbread), has reset their device or 'Secure.ANDROID_ID'
@@ -27,7 +25,14 @@ public class DeviceInfoUtil {
                 // Thanks http://www.pocketmagic.net/?p=1662!
                 // Try not to use DISPLAY, HOST or ID - these items could change.
                 // If there are collisions, there will be overlapping data
-                String m_szDevIDShort = "35" + (Build.BOARD.length() % 10) + (Build.BRAND.length() % 10) + (Build.CPU_ABI.length() % 10) + (Build.DEVICE.length() % 10) + (Build.MANUFACTURER.length() % 10) + (Build.MODEL.length() % 10) + (Build.PRODUCT.length() % 10);
+                String m_szDevIDShort = "35" +
+                        (Build.BOARD.length() % 10) +
+                        (Build.BRAND.length() % 10) +
+                        (Build.CPU_ABI.length() % 10) +
+                        (Build.DEVICE.length() % 10) +
+                        (Build.MANUFACTURER.length() % 10) +
+                        (Build.MODEL.length() % 10) +
+                        (Build.PRODUCT.length() % 10);  //13 位
 
                 // Thanks to @Roman SL!
                 // http://stackoverflow.com/a/4789483/950427

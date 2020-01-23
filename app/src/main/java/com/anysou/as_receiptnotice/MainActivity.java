@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] L_tosetNS_1 = {"Warm prompt:","温馨提示：","溫馨提示："};
     private String[] L_tosetNS_2 = {"Currently, you are not authorized to read the notice bar of this system. Please go to authorization before continuing!","当前您未授权本系统读取通知栏权限，请前往授权后再继续操作！","當前您未授權本系統讀取通知欄權限，請前往授權後再繼續操作！"};
     private String[] L_tosetNS_3 = {"To empower","前往授权","前往授權"};
+    private String[] L_NSOK = {"Notification bar listening service is on!","通知栏监听服务已开启！","通知欄監聽服務已開啟！"};
 
     // 此句在 onCreate 前面先执行
     @Override
@@ -206,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkNotificationService() {
         if (!isNotificationServiceEnable()) {
             // 对话框
-            new AlertDialog.Builder(this).setTitle("温馨提示").setMessage("当前您未授权本系统读取通知栏权限，请前往授权后再继续操作！").setPositiveButton("前往授权", new DialogInterface.OnClickListener()
+            new AlertDialog.Builder(this).setTitle(L_tosetNS_1[Lid]).setMessage(L_tosetNS_2[Lid]).setPositiveButton(L_tosetNS_3[Lid], new DialogInterface.OnClickListener()
             {
                 public void onClick(DialogInterface paramAnonymousDialogInterface, int paramAnonymousInt)
                 {
@@ -214,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).create().show();
         } else {
-            Toast.makeText(this,"通知栏监听服务已开启！",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,L_NSOK[Lid],Toast.LENGTH_SHORT).show();
         }
     }
 

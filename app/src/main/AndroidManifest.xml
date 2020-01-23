@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.anysou.as_receiptnotice">
+    <!--
+    GPS定位信息 (可伪造，来自Android.Permission.FINE_LOCATION)
+　　基站定位   (可伪造，来自Android.Permission.COARSE_LOCATION)
+　　系统自带浏览器的历史，书签(Android.Permission.BOOKMARKS)
+　　联系人    (android.permission.READ_CONTACTS)
+　　通话记录   (android.permission.READ_CONTACTS)
+　　系统日志   (android.permission.READ_LOGS)
+　　当前账户列表   (android.permission.GET_ACCOUNTS)
+　　当前账户的授权码  (android.permission.USE_CREDENTIALS)
+　　短信，彩信 (可能与这5个权限有关) android.permission.READ_SMS、android.permission.RECEIVE_SMS
+　　　　android.permission.SEND_SMS、android.permission.WRITE_SMS、android.permission.RECEIVE_MMS
+　　日历    android.permission.READ_CALENDAR
+    -->
 
     <!--Android各种访问权限Permission详解: https://www.jianshu.com/p/f6f17befbd17 -->
     <!--监听开机权限-->
@@ -14,6 +27,12 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!--屏幕保持唤醒，一种锁的机制，只要有进程持有这个锁，系统就无法进入休眠状态-->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!--IMEI(可伪造)\IMSI(可伪造)\SIM卡序列号(可伪造)\手机号码(可伪造)\来，去电号码\SIM卡信息\当前蜂窝网络信息-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--访问WIFI状态-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--访问蓝牙权限-->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
 
     <!-- 只允许访问https，不能直接访问http。处理方法在application 加 networkSecurityConfig
