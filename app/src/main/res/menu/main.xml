@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+    	android:orderInCategory="100"数值越大级别越小，可设置来排位置
+    	android:title="登录" 文字
+    	app:showAsAction="always"显示方式
+    	always：总是显示在界面上
+		never：不显示在界面上，只让出现在右边的三个点中
+		ifRoom：如果有位置才显示，不然就出现在右边的三个点中
+     -->
     <item android:id="@+id/action_settings"
             android:title="@string/text_setting" />
+
+    <item android:id="@+id/language"
+        android:title="@string/text_language">
+        <menu>
+            <item android:id="@+id/language_en"
+                android:title="@string/text_language_en"/>
+            <item android:id="@+id/language_cn"
+                android:title="@string/text_language_cn"/>
+            <item android:id="@+id/language_hk"
+                android:title="@string/text_language_hk">
+            </item>
+        </menu>
+    </item>
+
 </menu>
 
 

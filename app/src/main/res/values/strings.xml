@@ -1,20 +1,26 @@
 <resources>
-<string name="app_name">AS_ReceiptNotice多功能收款精灵</string>
-<string name="text_setting">Setting</string>
-<string name="text_clearlog">clear log</string>
-<string name="text_reverseshow">reverse display</string>
-<string name="text_home_fragment_tip">earn tip</string>
-<string name="text_home_fragment_nexttip">swip left to receipt record</string>
-<string name="filelog_title">post record</string>
-<string name="illustratedecrypt_title">Illustrate Decrypt</string>
-<string name="buttontext_setposturl">set the post url</string>
-<string-array name="pref_entries_encryptmethod">
-    <item>des</item>
-    <item>md5</item>
-</string-array>
+    <string name="app_name">AnyPay ReceiptNotice</string>
+    <string name="text_setting">Setting</string>
+    <string name="text_clearlog">Clear Log</string>
+    <string name="text_reverseshow">Reverse Display</string>
+    <string name="text_home_fragment_tip">Earn Tip</string>
+    <string name="text_home_fragment_nexttip">Swip left to receipt record</string>
+    <string name="filelog_title">Post Record</string>
+    <string name="illustratedecrypt_title">Illustrate Decrypt</string>
+    <string name="buttontext_setposturl">set the post url</string>
+    <string name="text_language">language</string>
+    <string name="text_language_en">English</string>
+    <string name="text_language_cn">Simplified_Chinese</string>
+    <string name="text_language_hk">Traditional_Chinese</string>
 
-<string-array name="pref_entryvalues_encryptmethod">
-    <item>des</item>
-    <item>md5</item>
-</string-array>
+    <string-array name="pref_entries_encryptmethod">
+        <item>des</item>
+        <item>md5</item>
+    </string-array>
+
+    <string-array name="pref_entryvalues_encryptmethod">
+        <item>des</item>
+        <item>md5</item>
+    </string-array>
+
 </resources>

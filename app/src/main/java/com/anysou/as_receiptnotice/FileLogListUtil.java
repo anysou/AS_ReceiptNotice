@@ -33,7 +33,7 @@ public class FileLogListUtil extends ASLogFileUtils{
         }
     }
 
-    // 将读取日志文件转为 LIST
+    // 将读取日志文件转为动态数组 （按指定字符串开始按指定字符串结束为新的一条记录添加到冬天数组内）
     public static ArrayList getLogList(){
         File file = new File(ASLogApplication.getAPP().getFilesDir(), ASLogIConfig.fileName);
         if (!file.exists())
@@ -41,9 +41,9 @@ public class FileLogListUtil extends ASLogFileUtils{
 
         OneFileListUtil fileutil = new OneFileListUtil(file);
         ArrayList filelist = fileutil.getFileList();
-        String startflag="*********************************";
-        String endflag="------------------------------------------";
-        ArrayList filemergelist=fileutil.mergeByFlagline(startflag,endflag,filelist);
+        String startflag = "*********************************";
+        String endflag = "------------------------------------------";
+        ArrayList filemergelist = fileutil.mergeByFlagline(startflag,endflag,filelist);
         return filemergelist;
     }
 

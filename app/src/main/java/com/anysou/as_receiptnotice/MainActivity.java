@@ -14,9 +14,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,8 +41,29 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  *
  * NotificationListenerService的那些事儿  https://www.jianshu.com/p/981e7de2c7be
  *
+ * Android 8.0中各种通知写法汇总  https://www.jianshu.com/p/6aec3656e274
+ *
  * extends 是继承； implements 是接口
  * JAVA中不支持多重继承，继承只能继承一个类，但implements可以实现多个接口，用逗号分开就行了。
+ *
+ * Android中有五种数据存储方法：
+ *  1）SQLite数据库、2）文件存储、
+ *  3）Preference：以类似Map的键值对形式存储的，最适合用来保存用户个人设置之类的信息。
+ *  4）ContentProvider：作用是为不同的应用之间数据共享，提供统一的接口。
+ *  5）网络存储数据。
+ *
+ * preference:
+ * getPreferences()：获取到作用域是本Activity的preference
+ * getSharedPreferences()：获取到作用域是本应用程序的preference
+ * getDefaultSharedPreferences()：获取到全局作用域的preference (包名一 样的可以取到)
+ *
+ * Context 上下文的表示的几种方法：
+ * 1、this, 说明当前类是context的子类，一般是activity application等; Activity.this在Activity当中可以缩写为this。生命周期：对应于 activity application 。
+ * 2、getContext() 获取的是 当前对象所在的 Context, Context通常翻译成上下文，可当成场景来理解。
+ * 3、getApplicationContext() 取得的是当前app所使用的application，这在AndroidManifest中唯一指定。意味着，在当前app的任意位置使用这个函数得到的是同一个Context; 生命周期：整个应用，应用摧毁，它才摧毁。
+ *    3A) getApplication(): andorid 开发中共享全局数据;
+ * 4、getBaseContext()： 返回由构造函数指定或setBaseContext()设置的上下文.
+ *
  * */
 
 public class MainActivity extends AppCompatActivity {
@@ -48,25 +71,44 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";  //设置标签
     private Toolbar myToolbar;                 //工具导航栏
     private ViewPager2 viewpage;               //分片页面容器切换滚动
-//    private Button btnsetposturl;              //按键 设置POST URL
-//    private FloatingActionButton btnshowlog;   //浮动按键；进入LogCAT
     private AutoCompleteTextView posturl;      //随笔提示文本组件
     private SharedPreferences sp ;             //轻量级的xml存储类
+    private int Lid = 0;
     private String urlsample = "http://anypay.wang/anypay/1/";
+    private String[] L_setposturl = {"Set POST URL：","设置POST地址为：","設置POST地址為："};
+    private String[] L_tosetNS_1 = {"Warm prompt:","温馨提示：","溫馨提示："};
+    private String[] L_tosetNS_2 = {"Currently, you are not authorized to read the notice bar of this system. Please go to authorization before continuing!","当前您未授权本系统读取通知栏权限，请前往授权后再继续操作！","當前您未授權本系統讀取通知欄權限，請前往授權後再繼續操作！"};
+    private String[] L_tosetNS_3 = {"To empower","前往授权","前往授權"};
 
+    // 此句在 onCreate 前面先执行
     @Override
+    protected void attachBaseContext(Context newBase) {
+        //MainApplication.getCMSint("attachBaseContext");
+        Log.i(MainApplication.getCMS(true),"该方法首句");
+
+        Context context = LanContextWrapper.wrap(newBase);
+        super.attachBaseContext(context);
+    }
+
+    /* Bundle savedInstanceState 捆绑保存状态：
+    出现用户按到home键，退出了界面，或者android系统意外回收了应用的进程，在这种情况下，
+    使用Bundle savedInstanceState就可以再次打开应用的时候恢复到原来的模样 */
+    @Override  //@Override 重写父类方法
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(MainApplication.getCMS(true),"该方法首句");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Lid = MainApplication.LANGUAGEID;
         initView();            // 初始化所有的组件及数据
         posturlSuggestion();   // 实现：光标点上去就显示一组默认的下拉数据。
     }
 
     //初始化所有的组件及数据
     private void initView() {
-        //第一个参数（name）用于指定文件的名称，若指定的文件不存在则创建一个；第二个参数（mode）用于指定操作模式，默认操作模式为MODE_PRIVATE。
-        sp = getSharedPreferences("url", Context.MODE_PRIVATE);
+        //第一个参数（name）用于指定文件的名称，若指定的文件不存在则创建一个；第二个参数（mode）用于指定操作模式，MODE_PRIVATE 该配置文件只能被自己的应用程序访问。
+        sp = getSharedPreferences(MainApplication.SP_NAME, Context.MODE_PRIVATE);
 
         // 工具导航栏
         myToolbar= (Toolbar) findViewById(R.id.my_toolbar);
@@ -84,34 +126,34 @@ public class MainActivity extends AppCompatActivity {
         // HomeFragmentsAdapter 适配器; 继承 FragmentStateAdapter（滑过后会保存当前界面，以及下一个界面和上一个界面（如果有），最多保存3个，其他会被销毁掉）
         FragmentsAdapterHome viewpageadapter = new FragmentsAdapterHome(this);
         viewpage.setAdapter(viewpageadapter);
-
-
-//        btnsetposturl=(Button) findViewById(R.id.btnsetposturl);
-//        btnsetposturl.setOnClickListener(this);
-//
-//        btnshowlog=(FloatingActionButton) findViewById(R.id.floatingshowlog);
-//        btnshowlog.setOnClickListener(this);
-
     }
 
     // 设置 提交地址
-    public void SetPostUrl(View view) {
-        posturl.setHint(null);
-        setPostUrl();
+    public void ButtonSetPostUrl(View view) {
+        Log.i(MainApplication.getCMS(true),"该方法首句");
+        //MainApplication.getCMSint("ButtonSetPostUrl");
+
+        String posturlstr = ""+posturl.getText().toString();
+        if(posturlstr==null || posturlstr==""){
+            Toast.makeText(this,MainApplication.LANGUAGEID+"",Toast.LENGTH_LONG).show();
+        } else {
+            posturl.setHint(null);
+            setPostUrl(posturlstr);
+        }
     }
 
     // 写入设置
-    private void setPostUrl() {
+    private void setPostUrl(String posturlstr) {
         SharedPreferences.Editor edit = sp.edit();
-        edit.putString("posturl",posturl.getText().toString());  //通过editor对象写入数据
+        edit.putString(MainApplication.POSTURL,posturlstr);  //通过editor对象写入数据
         edit.apply();  //提交数据存入到xml文件中
-        Toast.makeText(getApplicationContext(), "已经设置posturl为："+posturl.getText().toString(),Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), L_setposturl[Lid]+posturlstr,Toast.LENGTH_SHORT).show();
     }
 
     // 读取设置的posturl
     private String getPostUrl(){
         String posturlpath;
-        posturlpath = sp.getString("posturl", "");
+        posturlpath = sp.getString(MainApplication.POSTURL, "");
         if (posturlpath==null)
             return null;
         else
@@ -141,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 浮动按键 调用打开 LogCAT 日志界面
-    public void CallLogCAT(View view) {
+    public void ButtonCallLogCAT(View view) {
         LynxConfig lynxConfig = new LynxConfig();
         lynxConfig.setMaxNumberOfTracesToShow(4000)  //LynxView中显示的最大跟踪数
                 .setTextSizeInPx(12)       //用于在LynxView中呈现字体大小PX
@@ -151,33 +193,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(lynxActivityIntent);
     }
 
-
-    //===========================   菜单 ===========================================
-
-    @Override  //启动时建立 菜单（菜单布局对应在res/menu/目录下）
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);  //对应：res/menu/main.xml
-        return true;
-    }
-
-    @Override  // 点击菜单对应的操作
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                openSettingActivity();
-                return true;
-            default: //注意这两句必须要有
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
-
-    // 打开设置界面
-    private void openSettingActivity(){
-        Intent intent = new Intent(MainActivity.this, PreferenceActivity.class);
-        startActivity(intent);
-    }
 
 
     //==============================  通知栏监听服务 ==============================
@@ -263,6 +278,76 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+
+    //===========================   菜单 ===========================================
+
+    @Override  //启动时建立 菜单（菜单布局对应在res/menu/目录下）
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);  //对应：res/menu/main.xml
+        return true;
+    }
+
+    @Override  // 点击菜单对应的操作
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                openSettingActivity();
+                return true;
+            case R.id.language_en:
+                //Toast.makeText(this,"en",Toast.LENGTH_SHORT).show();
+                changeEnglish();
+                return true;
+            case R.id.language_cn:
+                //Toast.makeText(this,"cn",Toast.LENGTH_SHORT).show();
+                changeChinese();
+                return true;
+            case R.id.language_hk:
+                //Toast.makeText(this,"hk",Toast.LENGTH_SHORT).show();
+                changeChinese_HK();
+                return true;
+            default: //注意这两句必须要有
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+    // 打开设置界面
+    private void openSettingActivity(){
+        Intent intent = new Intent(MainActivity.this, PreferenceActivity.class);
+        startActivity(intent);
+    }
+
+
+    //======================= 设置修改语言 =========================================
+    public void changeChinese() {
+        SharedPreferences sharedPreferences=getSharedPreferences(MainApplication.SP_NAME, MODE_PRIVATE);
+        sharedPreferences.edit().putString(MainApplication.LANGUAGE, LanContextWrapper.LANG_CN).apply();
+        rebot();
+    }
+    public void changeEnglish() {
+        SharedPreferences sharedPreferences=getSharedPreferences(MainApplication.SP_NAME, MODE_PRIVATE);
+        sharedPreferences.edit().putString(MainApplication.LANGUAGE, LanContextWrapper.LANG_EN).apply();
+        rebot();
+    }
+    public void changeChinese_HK() {
+        SharedPreferences sharedPreferences=getSharedPreferences(MainApplication.SP_NAME, MODE_PRIVATE);
+        sharedPreferences.edit().putString(MainApplication.LANGUAGE, LanContextWrapper.LANG_HK).apply();
+        rebot();
+    }
+    // 重新启动
+    private void rebot() {
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            //overridePendingTransition(R.anim.anim_change_lang_enter, R.anim.anim_change_lang_exit);
+            finish();
+        }else{
+            recreate();
+        }
+    }
 
 
 

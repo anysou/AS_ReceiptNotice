@@ -1,132 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-        <PreferenceCategory
-                android:key="settings"
-                android:summary="设置"
-                android:title="设置">
-                <EditTextPreference
-                        android:defaultValue=""
-                        android:key="deviceid"
-                        android:title="deviceid"
-                        android:summary="设置deviceid来标识设备,如果不设置使用系统的Serial号码的UUID"/>
-		<CheckBoxPreference
-                        android:title="跳过deviceid的加密"
-                        android:defaultValue="false"
-                        android:summary="开启后,选择加密也不会加密deviceid"
-                        android:key="isskipencryptdeviceid" />
-                <CheckBoxPreference
-                        android:title="deviceid后缀UUID"
-                        android:defaultValue="false"
-                        android:summary="开启后会在设置的deviceid后缀UUID"
-			android:key="isappenddeviceiduuid" />
 
+        <PreferenceCategory
+            android:title="设备ID"/>
+
+                <EditTextPreference
+                    android:title="自定义设备ID"
+                    android:summary="设置设备ID来区分标识设备,如果不设置则用系统序列号的UUID"
+                    android:key="deviceid"
+                    android:defaultValue=""/>
                 <CheckBoxPreference
-                        android:title="加密"
-                        android:defaultValue="false"
-                        android:key="isencrypt" />
+                    android:title="自定义设备ID加UUID后缀"
+                    android:summary="开启后，会在设置的设备ID加后缀UUID可避免重复"
+                    android:key="isappenddeviceiduuid"
+                    android:defaultValue="false"/>
+                <CheckBoxPreference
+                    android:title="跳过对设备ID加密"
+                    android:summary="开启后,选择加密方式也不会加密设备ID"
+                    android:key="isskipencryptdeviceid"
+                    android:defaultValue="false"/>
+
+
+        <PreferenceCategory
+            android:title="推送动作" />
+        <CheckBoxPreference
+            android:title="是否在推送后移除通知"
+            android:summary="如果勾选，会在推送完后，清除掉这条通知栏的通知"
+            android:key="isremovenotification"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:title="重复推送"
+            android:summary="是否在推送失败时进行重复推送"
+            android:key="ispostrepeat"
+            android:defaultValue="false" />
+        <EditTextPreference
+            android:title="重复推送次数"
+            android:summary="推送失败时进行重复推送的次数"
+            android:key="postrepeatnum"
+            android:defaultValue="" />
+        <CheckBoxPreference
+            android:title="信任私有证书"
+            android:summary="如果勾选，在推送时会信任私有证书"
+            android:key="istrustallcertificates"
+            android:defaultValue="false" />
+        <EditTextPreference
+            android:title="要推送的自定义项"
+            android:summary="用冒号区分键和值,多个使用分号"
+            android:key="custom_option"
+            android:defaultValue="" />
+
+
+        <PreferenceCategory
+            android:title="签名加密"/>
+                <CheckBoxPreference
+                    android:title="是否加密"
+                    android:summary="是否进行签名加密"
+                    android:key="isencrypt"
+                    android:defaultValue="false" />
                 <ListPreference
-                        android:summary="加密方法"
-                        android:key="encryptmethod"
-                        android:title="加密方法"
-                        android:entries="@array/pref_entries_encryptmethod"
-                        android:entryValues="@array/pref_entryvalues_encryptmethod"
-                        >
-                </ListPreference>
+                    android:title="加密方法"
+                    android:summary="选择加密方法"
+                    android:key="encryptmethod"
+                    android:entries="@array/pref_entries_encryptmethod"
+                    android:entryValues="@array/pref_entryvalues_encryptmethod"
+                    android:dialogTitle="选择一种加密方法" />
                 <EditTextPreference
-                        android:defaultValue=""
-                        android:key="passwd"
-                        android:summary="密钥"
-                        android:title="密钥" />
+                    android:title="密钥"
+                    android:summary="签名加密的密钥"
+                    android:key="passwd"
+                    android:defaultValue="" />
                 <Preference
-                        android:title="解密说明">
+                    android:title="解密说明">
                         <intent
-                                android:action="com.weihuagu.receiptnotice.illustratedecryptmethod"
-                                android:category="android.intent.category.DEFAULT"/>
+                            android:action="com.anysou.as_receiptnotice.illustratedecryptmethod"
+                            android:category="android.intent.category.DEFAULT"/>
                 </Preference>
-                <CheckBoxPreference
-                        android:title="wakelock"
-                        android:defaultValue="false"
-                        android:summary="开启wakelock能使cpu处于不休眠的状态，开启后重启手机"
-                        android:key="iswakelock" />
-                <EditTextPreference
-                        android:defaultValue=""
-                        android:key="custom_option"
-                        android:summary="用冒号区分键和值,多个使用分号"
-                        android:title="要推送的自定义项" />
-        </PreferenceCategory>
-        <PreferenceCategory
-                android:key="keep_alive"
-                android:summary="报告连接"
-                android:title="报告连接">
-                <CheckBoxPreference
-                        android:title="是否使用socket.io echo server"
-                        android:defaultValue="false"
-                        android:key="isecho" />
-                <EditTextPreference
-                        android:defaultValue=""
-                        android:key="echoserver"
-                        android:summary="echo socket.io 服务器"
-                        android:title="echo 服务器" />
-                <EditTextPreference
-                        android:defaultValue=""
-                        android:key="echointerval"
-                        android:summary="echo 间隔(秒),建议设置为15秒以上，如设置过大（如10分钟以上时），导致server频繁接到disconnect事件可以调小到不会频繁断开为止。"
-                        android:title="echo 间隔" />
-        </PreferenceCategory>
-        <PreferenceCategory
-                android:key="action"
-                android:summary="行为"
-                android:title="行为">
-                <CheckBoxPreference
-                        android:title="是否在推送后移除通知"
-                        android:defaultValue="false"
-                        android:summary="如果勾选，会在推送完后，清除掉这条通知栏的通知"
-                        android:key="isremovenotification" />
-                <CheckBoxPreference
-                        android:title="是否推送失败重复推送"
-                        android:defaultValue="false"
-                        android:key="ispostrepeat" />
-                <EditTextPreference
-                        android:defaultValue=""
-                        android:key="postrepeatnum"
-                        android:title="推送失败重复次数" />
-                <CheckBoxPreference
-                    android:title="是否在推送时信任私有证书"
-                    android:defaultValue="false"
-                    android:summary="如果勾选，会信任所有证书"
-                    android:key="istrustallcertificates" />
-        </PreferenceCategory>
-        <PreferenceCategory
-                android:key="record"
-                android:summary="记录"
-                android:title="记录">
-                <Preference
-                        android:title="推送记录">
-                        <intent
-                                android:action="com.weihuagu.receiptnotice.showfilelog"
-                                android:targetClass="com.weihuagu.receiptnotice.FileLogActivity"
-                                android:targetPackage="com.weihuagu.receiptnotice"/>
-                </Preference>
-        </PreferenceCategory>
-        <PreferenceCategory
-                android:key="about"
-                android:summary="关于"
-                android:title="关于">
-                <Preference
-                        android:title="github地址">
-                        <intent
-                                android:action="android.intent.action.VIEW"
-                                android:category="android.intent.category.DEFAULT"
-                                android:data="https://github.com/WeihuaGu/receiptnotice"/>
-                </Preference>
-                <Preference
-                        android:title="捐助">
-                        <intent
-                                android:action="android.intent.action.VIEW"
-                                android:category="android.intent.category.DEFAULT"
-                                android:data="https://weihuagu.github.io/donate/"/>
-                </Preference>
-        </PreferenceCategory>
 
+
+        <PreferenceCategory
+            android:title="休眠锁"/>
+               <CheckBoxPreference
+                    android:title="休眠锁"
+                    android:summary="开启休眠锁能使cpu处于不休眠的状态，开启后重启手机"
+                    android:key="iswakelock"
+                    android:defaultValue="false" />
+
+
+        <PreferenceCategory
+            android:title="通信服务"/>
+                <CheckBoxPreference
+                    android:title="是否使用通信服务"
+                    android:summary="启用socket.io通信服务器"
+                    android:key="isecho"
+                    android:defaultValue="false"/>
+                <EditTextPreference
+                    android:title="Echo服务器"
+                    android:summary="socket.io通信服务器的地址"
+                    android:key="echoserver"
+                    android:defaultValue="" />
+                <EditTextPreference
+                    android:title="通信间隔时间"
+                    android:summary="echo间隔(秒),建议设置为15秒以上，如设置过大（如10分钟以上时），导致server频繁接到连接失败事件，可以调小到不会频繁断开为止。"
+                    android:key="echointerval"
+                    android:defaultValue="" />
+
+
+        <PreferenceCategory
+            android:title="记录"
+            android:summary="相关记录"
+            android:key="record" />
+                <Preference
+                    android:title="推送记录">
+                        <intent
+                            android:action="com.anysou.as_receiptnotice.showfilelog"
+                            android:targetClass="com.anysou.as_receiptnotice.FileLogActivity"
+                            android:targetPackage="com.anysou.as_receiptnotice"/>
+                </Preference>
+
+        <PreferenceCategory
+            android:title="关于"/>
+                <Preference
+                    android:title="github地址">
+                        <intent
+                            android:action="android.intent.action.VIEW"
+                            android:category="android.intent.category.DEFAULT"
+                            android:data="https://github.com/WeihuaGu/receiptnotice"/>
+                </Preference>
+                <Preference
+                    android:title="捐助">
+                        <intent
+                            android:action="android.intent.action.VIEW"
+                            android:category="android.intent.category.DEFAULT"
+                            android:data="https://weihuagu.github.io/donate/"/>
+                </Preference>
 
 </PreferenceScreen>

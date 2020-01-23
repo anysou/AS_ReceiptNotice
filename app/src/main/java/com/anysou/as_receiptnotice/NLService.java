@@ -28,13 +28,14 @@ import java.util.Map;
  *  全新的Android通知栏,已抛弃setLatestEventInfo,兼容高版本  https://github.com/linglongxin24/NotificationUtil
  * **/
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NLService extends NotificationListenerService implements AsyncResponse, IDoPost, ActionStatusBarNotification {
 
     private String TAG="NLService";     // TAG
     private Context context=null;       // 上下文
     private String posturl=null;        // 提交POST地址
     private String getPostUrl(){        // 通过轻量存储读取POST地址
-        SharedPreferences sp = getSharedPreferences("url", 0);
+        SharedPreferences sp = getSharedPreferences(MainApplication.SP_NAME, Context.MODE_PRIVATE);
         this.posturl =sp.getString("posturl", "");
         if (posturl==null)
             return null;
@@ -143,7 +144,7 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
     }
 
-    // 推送POST
+    // 推送POST，每个具体的APP包名对应收款处理中，handleNotification 中调用
     public void doPost(Map<String, String> params){
         if(this.posturl==null|params==null)
             return;

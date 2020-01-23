@@ -45,10 +45,7 @@ import okhttp3.ConnectionSpec;
 
 public class NotificationCollectorMonitorService extends Service {
 
-    /**
-     * 注意：设置 TAG 的内容长度要 < 23
-     */
-    private static final String TAG = "NotifiCollectorMonitor";
+    private static final String TAG = "NotifiCollectorMonitor";  //注意：设置 TAG 的内容长度要 < 23
     private Timer timer = null;                // 定时器
     private String echointerval = null;        // 时间间隔
     private TimerTask echotimertask =null;     // 时间任务

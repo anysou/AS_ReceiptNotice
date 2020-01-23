@@ -14,6 +14,8 @@
                 android:elevation="4dp"
                 android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
                 app:layout_constraintTop_toTopOf="parent"/>
+
+        <!--RecyclerView 是Android一个更强大的控件,其不仅可以实现和ListView同样的效果,还有优化了ListView中的各种不足。其可以实现数据纵向滚动,也可以实现横向滚动-->
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/my_recycler_view"
                 android:scrollbars="vertical"

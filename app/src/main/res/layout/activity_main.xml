@@ -41,7 +41,7 @@
             android:id="@+id/btnsetposturl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="SetPostUrl"
+            android:onClick="ButtonSetPostUrl"
             android:text="@string/buttontext_setposturl" />
 
     </LinearLayout>
@@ -68,7 +68,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="5dp"
         android:src="@drawable/log_icon"
-        android:onClick="CallLogCAT"
+        android:onClick="ButtonCallLogCAT"
         app:backgroundTint="@color/white"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
