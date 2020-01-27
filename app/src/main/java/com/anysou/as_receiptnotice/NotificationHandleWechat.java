@@ -11,10 +11,9 @@ import java.util.Map;
 /**
  * 微信收款
  * */
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleWechat extends NotificationHandle {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleWechat(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }

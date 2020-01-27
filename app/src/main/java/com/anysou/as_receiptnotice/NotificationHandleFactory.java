@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
  * android 监听微信，QQ，微博，钉钉，淘宝，支付宝等消息  https://blog.csdn.net/wengsheng147/article/details/99435107
  * */
 
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 public  class NotificationHandleFactory{
 
     public static String NOTIFICATION_PACKAGE_EMAIL = "com.android.email";  //email
@@ -33,7 +34,7 @@ public  class NotificationHandleFactory{
     public static String NOTIFICATION_PACKAGE_TAOBAO = " com.taobao.taobao";//淘宝
     public static String NOTIFICATION_PACKAGE_MOBILEQQ = "com.tencent.mobileqq"; //手机QQ
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+
     public NotificationHandle getNotificationHandle(String pkg, Notification notification, IDoPost postpush){
 
         //支付宝
@@ -69,12 +70,10 @@ public  class NotificationHandleFactory{
             return  new NotificationHandleMipush("com.xiaomi.xmsf",notification,postpush);
         }
 
-
         return null;  //不是收款类APP消息
     }
 
     //获取短信
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
     private String getMessageAppPkg(){
         return Telephony.Sms.getDefaultSmsPackage(MainApplication.getAppContext());
     }

@@ -14,9 +14,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 通知委托处理类  抽象类
+ * 通知句柄  抽象类
  * */
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public abstract class NotificationHandle{
 
     protected Notification notification;    // 通知
@@ -30,7 +30,6 @@ public abstract class NotificationHandle{
     public StatusBarNotification sbn;       // 通知状态
 
     //                               包名             通知                 要Post的数据
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandle(String pkgtype, Notification notification, IDoPost postpush){
         this.pkgtype=pkgtype;
         this.notification=notification;
@@ -39,8 +38,8 @@ public abstract class NotificationHandle{
         title = extras.getString(Notification.EXTRA_TITLE, "");  // 获取通知标题
         content = extras.getString(Notification.EXTRA_TEXT, ""); // 获取通知内容
         long when = notification.when;  // 通知的时间
-        Date date=new Date(when);
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date(when);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         notitime = format.format(date); // 通知的时间已格式化
     }
 

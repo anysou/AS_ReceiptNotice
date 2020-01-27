@@ -13,10 +13,9 @@ import java.util.regex.Pattern;
 /**
  * 支付宝收款
  * */
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 public class NotificationHandleAlipay extends NotificationHandle {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleAlipay(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }

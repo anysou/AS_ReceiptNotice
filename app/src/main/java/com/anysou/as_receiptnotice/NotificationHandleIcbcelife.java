@@ -8,9 +8,13 @@ import androidx.annotation.RequiresApi;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 工银商户
+ * */
+
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleIcbcelife extends NotificationHandle {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleIcbcelife(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }

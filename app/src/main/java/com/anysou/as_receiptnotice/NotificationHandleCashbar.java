@@ -1,6 +1,9 @@
 package com.anysou.as_receiptnotice;
 
 import android.app.Notification;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * 收钱吧
  * */
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleCashbar extends NotificationHandle {
 
     public NotificationHandleCashbar(String pkgtype, Notification notification, IDoPost postpush) {

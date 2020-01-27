@@ -56,8 +56,8 @@ public class NotificationCollectorMonitorService extends Service {
         super.onCreate();
 
         ensureCollectorRunning();  //确保通知监听服务组件运行中
-        setWakelock();             //根据配置，设置唤醒锁，确保CPU不进入休眠状态（android.permission.WAKE_LOCK权限）
-        startEchoTimer();          //根据配置，启动Socket.IO实现即时通讯（android.permission.INTERNET权限、io.socket:socket.io-client:1.0.0库）
+        setWakelock();             //根据设置，获取唤醒锁，确保CPU不进入休眠状态（android.permission.WAKE_LOCK权限）
+        startEchoTimer();          //根据配置，启动Socket.IO实现即时通讯（android.permission.INTERNET权限、io.socket、gson库）
     }
 
     //=================== 通过查询所有服务，确定NLService 通知监听服务是否启动，没启动则启动 ======================

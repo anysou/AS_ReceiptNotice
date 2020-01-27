@@ -11,10 +11,9 @@ import java.util.Map;
 /**
  * 应用管理GCM代收
  * */
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleXposedmodule extends NotificationHandle {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleXposedmodule(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }

@@ -11,13 +11,12 @@ import java.util.Map;
 /**
  * 银行短信
  * */
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleBanksProxy extends NotificationHandle {
 
     //定义银行信息识别器
     private BankDistinguisher onedistinguisher = new BankDistinguisher();
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleBanksProxy(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }

@@ -14,6 +14,8 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.jeremyliao.liveeventbus.LiveEventBus;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -28,7 +30,7 @@ import java.util.Map;
  *  全新的Android通知栏,已抛弃setLatestEventInfo,兼容高版本  https://github.com/linglongxin24/NotificationUtil
  * **/
 
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)  //API 19    android 4.4 KitKat    奇巧巧克力棒
 public class NLService extends NotificationListenerService implements AsyncResponse, IDoPost, ActionStatusBarNotification {
 
     private String TAG="NLService";     // TAG
@@ -36,7 +38,7 @@ public class NLService extends NotificationListenerService implements AsyncRespo
     private String posturl=null;        // 提交POST地址
     private String getPostUrl(){        // 通过轻量存储读取POST地址
         SharedPreferences sp = getSharedPreferences(MainApplication.SP_NAME, Context.MODE_PRIVATE);
-        this.posturl =sp.getString("posturl", "");
+        this.posturl =sp.getString(MainApplication.POSTURL, "");
         if (posturl==null)
             return null;
         else
@@ -49,8 +51,6 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         //当连接成功时调用，一般在开启监听后会回调一次该方法
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override  //当收到一条消息时回调，sbn里面带有这条消息的具体信息
     public void onNotificationPosted(StatusBarNotification sbn) {
         // super.onNotificationPosted(sbn);
@@ -59,9 +59,9 @@ public class NLService extends NotificationListenerService implements AsyncRespo
             return;
 
         Notification notification = sbn.getNotification();
-        if (notification == null) {
+        if (notification == null)
             return;
-        }
+
         Bundle extras = notification.extras;
         if(extras==null)
             return;
@@ -71,7 +71,7 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         boolean clearable = sbn.isClearable(); //通知是否可被清除
         if (!clearable) { //如果是常驻的  不通知  只有真正的通知才显示
             LogUtil.debugLog("该通知是不可清除的，包名="+pkg);
-            return;
+            //return;
         }
 
         /*
@@ -96,25 +96,81 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         if(notihandle!=null){
             notihandle.setStatusBarNotification(sbn);  //传 sbn
             notihandle.setActionStatusbar(this);       //传 Action组件
-            notihandle.printNotify();                  //打印通知信息
-            notihandle.handleNotification();           //处理通知
+            notihandle.printNotify();                  //打印显示通知信息
+            notihandle.handleNotification();           //处理通知 具体处理在 各个对应APP包处理函数中
             notihandle.removeNotification();           //移除通知
             return;
         }
 
         // 其他通知信息显示
-        LogUtil.debugLog("-----------------");
-        LogUtil.debugLog("接受到通知消息");
+        LogUtil.debugLog("----------------------");
         LogUtil.debugLog("这是检测之外的其它通知");
         LogUtil.debugLog("包名是"+pkg);
         NotificationUtil.printNotify(notification);
-        //printNotify(getNotitime(notification),getNotiTitle(extras),getNotiContent(extras));
         LogUtil.debugLog("**********************");
     }
 
+    //===========================  POST 任务 ===============================
 
+    // 推送POST前的：设备ID、相关数据、数据加密、等获得准备。每个具体的APP包名对应收款处理中，handleNotification 中调用
+    public void doPost(Map<String, String> params){
+        if(this.posturl==null|params==null)
+            return;
+        LogUtil.debugLog("开始准备进行post");
+        if(params.get("repeatnum")!=null){  //如果重复提交次数；为空
+            doPostTask(params,null);  //异步任务
+            return;
+        }
+
+        PreferenceUtil preference = new PreferenceUtil(getBaseContext());
+        PostMapFilter mapfilter = new PostMapFilter(preference,params,this.posturl); //数据加密处理
+        Map<String, String> recordmap = mapfilter.getLogMap();
+        Map<String, String> postmap = mapfilter.getPostMap();
+        doPostTask(postmap,recordmap); //异步任务
+    }
+
+    // 推送异步任务的具体工作             POST的内容                待重复提交的内容
+    private void doPostTask(Map<String, String> postmap,Map<String, String> recordmap){
+        PostTask mtask = new PostTask(); //继承 异步任务 AsyncTask
+        String tasknum = RandomUtil.getRandomTaskNum(); //获取任务的随机序列号
+        mtask.setRandomTaskNum(tasknum);
+        mtask.setOnAsyncResponse(this);
+        if(recordmap!=null)
+            LogUtil.postRecordLog(tasknum,recordmap.toString());
+        else
+            LogUtil.postRecordLog(tasknum,postmap.toString());
+        mtask.execute(postmap); //异步任务执行
+    }
+
+    //===========================  POST 返回结果的处理 ===============================
+    @Override // POST 成功的操作
+    public void onDataReceivedSuccess(String[] returnstr) {
+        Log.d(TAG,"POST成功返回的数据");
+        Log.d(TAG,returnstr[2]);
+        LogUtil.postResultLog(returnstr[0],returnstr[1],returnstr[2]);
+    }
+
+    @Override // POST 失败的操作
+    public void onDataReceivedFailed(String[] returnstr,Map<String ,String> postedmap) {
+        // TODO Auto-generated method stub
+        Log.d(TAG,"POST失败");
+        LogUtil.postResultLog(returnstr[0],returnstr[1],returnstr[2]);
+        PreferenceUtil preference = new PreferenceUtil(getBaseContext());
+        if(preference.isPostRepeat()){ //需要失败后重新提交
+            String repeatlimit = preference.getPostRepeatNum(); //获取重新提交次数
+            int limitnum = Integer.parseInt(repeatlimit);
+
+            String repeatnumstr = postedmap.get("repeatnum");   //获取当前第几次
+            int repeatnum = Integer.parseInt(repeatnumstr);
+
+            if(repeatnum<=limitnum)
+                doPost(postedmap); //重新提交。目前没有设置间隔时间
+        }
+    }
+
+
+    //============================  移除通知的相关操作 ======================================
     // 移除通知的具体操作（对应移除接口）
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void removeNotification(StatusBarNotification sbn){
         PreferenceUtil preference = new PreferenceUtil(getBaseContext());
         if(preference.isRemoveNotification()){  //获取设置，是否推送后移除通知
@@ -132,6 +188,14 @@ public class NLService extends NotificationListenerService implements AsyncRespo
             super.onNotificationRemoved(sbn);
     }
 
+
+    //=============== 显示相关提示的三个方法：吐司、本地广播、发消息 ================
+
+    // 发送给吐司
+    private void sendToast(String msg){
+        Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+    }
+
     // 发本地广播
     private void sendBroadcast(String msg) {
         Intent intent = new Intent(getPackageName());
@@ -139,91 +203,11 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    // 发送给吐司
-    private void sendToast(String msg){
-        Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+    // 发送 LiveEventBus 消息事件总线框架
+    private void sendNotification(String title, String msg){
+        LiveEventBus
+            .get(title)
+            .post(msg);
     }
 
-    // 推送POST，每个具体的APP包名对应收款处理中，handleNotification 中调用
-    public void doPost(Map<String, String> params){
-        if(this.posturl==null|params==null)
-            return;
-        LogUtil.debugLog("开始准备进行post");
-        if(params.get("repeatnum")!=null){
-            doPostTask(params,null);
-            return;
-        }
-
-        PreferenceUtil preference = new PreferenceUtil(getBaseContext());
-        PostMapFilter mapfilter = new PostMapFilter(preference,params,this.posturl);
-        Map<String, String> recordmap = mapfilter.getLogMap();
-        Map<String, String> postmap = mapfilter.getPostMap();
-        doPostTask(postmap,recordmap);
-    }
-    // 推送的具体工作
-    private void doPostTask(Map<String, String> postmap,Map<String, String> recordmap){
-        PostTask mtask = new PostTask();
-        String tasknum = RandomUtil.getRandomTaskNum();
-        mtask.setRandomTaskNum(tasknum);
-        mtask.setOnAsyncResponse(this);
-        if(recordmap!=null)
-            LogUtil.postRecordLog(tasknum,recordmap.toString());
-        else
-            LogUtil.postRecordLog(tasknum,postmap.toString());
-        mtask.execute(postmap);
-    }
-
-
-    @Override
-    public void onDataReceivedSuccess(String[] returnstr) {
-        Log.d(TAG,"POST成功返回的数据");
-        Log.d(TAG,returnstr[2]);
-        LogUtil.postResultLog(returnstr[0],returnstr[1],returnstr[2]);
-    }
-
-    @Override
-    public void onDataReceivedFailed(String[] returnstr,Map<String ,String> postedmap) {
-        // TODO Auto-generated method stub
-        Log.d(TAG,"POST失败");
-        LogUtil.postResultLog(returnstr[0],returnstr[1],returnstr[2]);
-        PreferenceUtil preference = new PreferenceUtil(getBaseContext());
-        if(preference.isPostRepeat()){
-            String repeatlimit = preference.getPostRepeatNum();
-            int limitnum = Integer.parseInt(repeatlimit);
-            String repeatnumstr = postedmap.get("repeatnum");
-            int repeatnum = Integer.parseInt(repeatnumstr);
-            if(repeatnum<=limitnum)
-                doPost(postedmap);
-        }
-    }
-
-    // 获取通知的时间，并格式化
-    private String getNotitime(Notification notification){
-        long when=notification.when;
-        Date date=new Date(when);
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        String notitime=format.format(date);
-        return notitime;
-    }
-
-    // 获取通知的标题
-    private String getNotiTitle(Bundle extras){
-        String title=null;
-        title = extras.getString(Notification.EXTRA_TITLE, "");
-        return title;
-    }
-
-    // 获取通知的内容
-    private String getNotiContent(Bundle extras){
-        String content=null;
-        content = extras.getString(Notification.EXTRA_TEXT, "");
-        return content;
-    }
-
-    // 显示通知的时间、标题、内容
-    private void printNotify(String notitime,String title,String content){
-        Log.d(TAG,notitime);
-        Log.d(TAG,title);
-        Log.d(TAG,content);
-    }
 }

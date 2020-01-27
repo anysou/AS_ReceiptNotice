@@ -13,10 +13,9 @@ import java.util.Map;
  * 云闪付收款
  * */
 
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleUnionpay extends NotificationHandle {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleUnionpay(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }

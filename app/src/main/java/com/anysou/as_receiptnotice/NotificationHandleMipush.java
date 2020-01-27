@@ -14,10 +14,9 @@ import java.util.regex.Pattern;
  * 小米的mipush
  * */
 
-
+@RequiresApi(api = Build.VERSION_CODES.KITKAT) //KitKat	4.4	2013年7月24日	API level 19
 class NotificationHandleMipush extends NotificationHandle {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public NotificationHandleMipush(String pkgtype, Notification notification, IDoPost postpush) {
         super(pkgtype, notification, postpush);
     }
@@ -63,16 +62,6 @@ class NotificationHandleMipush extends NotificationHandle {
         }
     }
 
-    private String getPayer(String content){
-        Pattern pattern = Pattern.compile("(.*)(通过扫码向您付款)");
-        Matcher matcher = pattern.matcher(content);
-        if(matcher.find()){
-            String tmp=matcher.group(2);
-            return tmp;
-        }else
-            return "";
-    }
-
     private String whoTransferred(String content){
         Pattern pattern = Pattern.compile("(.*)(已成功向你转了)");
         Matcher matcher = pattern.matcher(content);
@@ -83,4 +72,15 @@ class NotificationHandleMipush extends NotificationHandle {
         else
             return "";
     }
+
+    private String getPayer(String content){
+        Pattern pattern = Pattern.compile("(.*)(通过扫码向您付款)");
+        Matcher matcher = pattern.matcher(content);
+        if(matcher.find()){
+            String tmp=matcher.group(2);
+            return tmp;
+        }else
+            return "";
+    }
+
 }
