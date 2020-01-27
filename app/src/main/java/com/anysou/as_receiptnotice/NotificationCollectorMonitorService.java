@@ -45,7 +45,7 @@ import okhttp3.ConnectionSpec;
 
 public class NotificationCollectorMonitorService extends Service {
 
-    private static final String TAG = "NotifiCollectorMonitor";  //注意：设置 TAG 的内容长度要 < 23
+    private static final String TAG = "NCMS";  //注意：设置 TAG 的内容长度要 < 23
     private Timer timer = null;                // 定时器
     private String echointerval = null;        // 时间间隔
     private TimerTask echotimertask =null;     // 时间任务
@@ -104,6 +104,7 @@ public class NotificationCollectorMonitorService extends Service {
          **/
         pm.setComponentEnabledSetting(thisComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         pm.setComponentEnabledSetting(thisComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        Log.d(TAG, "确保运行的服务组件启动完成！");
     }
 
 
@@ -114,10 +115,10 @@ public class NotificationCollectorMonitorService extends Service {
         //PreferenceUtil 是自定义的配置管理类
         PreferenceUtil preference = new PreferenceUtil(getBaseContext());
         if(preference.isWakelock())  //读取设置
-            obtainWakelock();    //获得锁
+            obtainWakelock();        //获得锁
     }
     // 设置并获得锁
-    @SuppressLint("InvalidWakeLockTag")
+    @SuppressLint("InvalidWakeLockTag")  //标注忽略指定的警告
     private void  obtainWakelock() {
         /**电源管理架构:
          * https://blog.csdn.net/weixin_37730482/article/details/80108786
@@ -138,8 +139,13 @@ public class NotificationCollectorMonitorService extends Service {
         //.PARTIAL_WAKE_LOCK：保证CPU保持高性能运行，而屏幕和键盘背光（也可能是触摸按键的背光）关闭。一般情况下都会使用这个WakeLock。
         //wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,TAG);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"receiptnoticewakelock");
-        if(wl!=null)
+        if(wl!=null){
             wl.acquire(); //获得
+            Log.d(TAG, "设置唤醒锁，确保CPU不进入休眠状态，成功！");
+        }
+        else{
+            Log.d(TAG, "********设置唤醒锁，确保CPU不进入休眠状态，失败！*******");
+        }
     }
     //释放锁
     private void releaseWakelock() {
@@ -153,13 +159,16 @@ public class NotificationCollectorMonitorService extends Service {
     //=================== 根据配置（是否使用Echo服务、服务器地址、通信间隔时间），启动Socket.IO实现即时通讯 =====================
     // 开始启动Echo定时器
     private void startEchoTimer(){
-        PreferenceUtil preference=new PreferenceUtil(getBaseContext());
+        PreferenceUtil preference = new PreferenceUtil(getBaseContext());
         String interval = preference.getEchoInterval(); // 获取配置文件中的 时间间隔
         this.echointerval = (!interval.equals("") ?  interval:getDefaultEchoInterval()); // 如果配置没有，取默认的
-        this.echotimertask = returnEchoTimerTask();
-        this.timer=new Timer();
         int intervalmilliseconds = Integer.parseInt(this.echointerval)*1000; //转为毫秒
-        LogUtil.infoLog("socket.io 通信间隔时间（ms）:"+intervalmilliseconds);
+        LogUtil.TimeDLog("socket.io 通信间隔时间（ms）:"+intervalmilliseconds);
+
+        this.echotimertask = returnEchoTimerTask();  //定时执行的任务
+
+        this.timer=new Timer();  //定时器
+
         //schedule（task，time，period） task-所要安排执行的任务 time-首次执行任务的时间 period-执行一次task的时间间隔，单位毫秒
         //作用：时间等于或者超过time首次执行task，之后每隔period毫秒重复执行一次任务
         timer.schedule(echotimertask,5*1000,intervalmilliseconds); //5秒后执行、之后每intervalmilliseconds执行一次
@@ -177,19 +186,19 @@ public class NotificationCollectorMonitorService extends Service {
             @Override
             public void run() {
                 if(!isIntervalMatchPreference()){
-                    restartEchoTimer();
+                    restartEchoTimer();  //重新启动定时服务
                     return;
                 }
-                LogUtil.debugLog("socketio 定时到，开始启动服务任务");
-                boolean flag= echoServer();
+                LogUtil.TimeDLog("socketio 定时到，开始启动服务任务");
+                boolean flag= echoServer(); //具体socketio服务
                 if(!flag)
-                    LogUtil.debugLog("socketio定时服务没有运行");
+                    LogUtil.TimeDLog("socketio定时服务没有运行");
             }
         };
     }
     private boolean isIntervalMatchPreference(){
         PreferenceUtil preference = new PreferenceUtil(getBaseContext());
-        String interval = preference.getEchoInterval();
+        String interval = preference.getEchoInterval(); //ECHO 间隔时间 频率
         if(interval.equals(""))
             return true;
         if(interval.equals(this.echointerval))
@@ -206,32 +215,32 @@ public class NotificationCollectorMonitorService extends Service {
             echotimertask.cancel();
             echotimertask = null;
         }
-        LogUtil.debugLog("重新启动定时任务");
+        LogUtil.TimeDLog("重新启动定时任务");
         startEchoTimer();
     }
     // 启动的服务
     private boolean echoServer(){
-        PreferenceUtil preference=new PreferenceUtil(getBaseContext());
+        PreferenceUtil preference = new PreferenceUtil(getBaseContext());
         Gson gson = new Gson();  //Gson是一个Java库，它可以用来把Java对象转换为JSON表达式，也可以反过来把JSON字符串转换成与之相同的Java对象
         // 需要Echo 且 Echo服务器存在
-        if(preference.isEcho() && (preference.getEchoServer()!=null)){
+        if(preference.isEcho() && (preference.getEchoServer()!=null)){  //启动Echo服务、且服务器地址不为空
             Date date = new Date(System.currentTimeMillis());
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String time = format.format(date);
             DeviceBean device = new DeviceBean();
             String deviceid = preference.getDeviceid();  //获取设置的设备ID
             deviceid=(!deviceid.equals("") ? deviceid:DeviceInfoUtil.getUniquePsuedoID()); //没有就用系统的UUID
-            device.setDeviceid(deviceid);
+            device.setDeviceid(deviceid); //发送信息：{"deviceid":"设备ID","connectedtime":"2020-01-01 08:08:08"}
             device.setTime(time);
-            LogUtil.debugLog("开始启动 socketio 连接");
+            LogUtil.TimeDLog("开始启动 socketio 连接");
             echoServerBySocketio(preference.getEchoServer(),gson.toJson(device)); //发送：设备ID、当前连接时间
-            LogUtil.debugLog(gson.toJson(device));
+            LogUtil.TimeDLog(gson.toJson(device));  //java对象转json字符串
             return true;
         }
         else
             return false;
     }
-    // 要发生的设备信息类
+    // 要发送的设备信息类
     public class DeviceBean{
         public String deviceid;
         public String connectedtime;
@@ -242,15 +251,16 @@ public class NotificationCollectorMonitorService extends Service {
             this.connectedtime = time;
         }
     }
-    // 启动 socketio 连接
+
+    // 启动 socketio 连接 并发送 emit 数据
     private boolean echoServerBySocketio(String echourl,String echojson){
-        Socket mSocket= EchoSocket.getInstance(echourl);  //获取Socket实例
+        Socket mSocket = EchoSocket.getInstance(echourl);  //获取Socket实例,连接服务器
         mSocket.connect();
         mSocket.emit("echo",echojson);  //表示发送了一个action命令
         mSocket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                LogUtil.infoLog("socket 连接失败,将在5秒钟后重试");
+                LogUtil.TimeDLog("socket 连接失败,将在5秒钟后重试");
                 try{
                     Thread.sleep(5000);
                 }catch(InterruptedException e){
@@ -283,7 +293,7 @@ public class NotificationCollectorMonitorService extends Service {
             Random random = new Random();
             int current = random.nextInt(maxCount)+1;
             if(getThisInstance(current)==null){
-                synchronized(EchoSocket.class){
+                synchronized(EchoSocket.class){  //synchronized 关键字，代表这个方法加锁
                     if(current==1)
                         instance1=getIOSocket(socketserverurl);
                     if(current==2)
