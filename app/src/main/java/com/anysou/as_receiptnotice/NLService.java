@@ -136,7 +136,7 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         mtask.setRandomTaskNum(tasknum);
         mtask.setOnAsyncResponse(this);
         if(recordmap!=null)
-            LogUtil.postRecordLog(tasknum,recordmap.toString());
+            LogUtil.postRecordLog(tasknum,recordmap.toString());  // 记录支付相关日志
         else
             LogUtil.postRecordLog(tasknum,postmap.toString());
         mtask.execute(postmap); //异步任务执行

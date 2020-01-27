@@ -21,22 +21,27 @@ class NotificationHandleBanksProxy extends NotificationHandle {
         super(pkgtype, notification, postpush);
     }
 
-    // 根据短信内容识别银行名称
+    // 根据短信内容识别银行名称，内容里有： 信息内有“银行” 、“收入/存入/转入/入账/来帐”、银行名称
     private String getBankType(){
         return onedistinguisher.distinguishByMessageContent(content);
     }
 
     @Override
     public void handleNotification() {
+
+        LogUtil.debugLog("可能是银行短信");
+
         String banktype = getBankType();
-        if(banktype==null)
+        if(banktype==null)  //没有银行名称，则返回
             return;
 
-        String type=null;
+        String type = null;
         if(banktype=="")
             type="message-bank";
         else
             type="message-bank-"+banktype;
+
+        LogUtil.debugLog("确定是银行短信，准备POST数据");
         Map<String,String> postmap=new HashMap<String,String>();
         postmap.put("type",type);
         postmap.put("time",onedistinguisher.extractTime(content,notitime));

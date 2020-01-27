@@ -41,15 +41,15 @@ public class NotificationUtil {
         }
 
         // 打印：通知时间、标题、内容
-        public static void printNotify(Notification notification){
-                LogUtil.debugLog("时间："+getNotitime(notification)+"\n标题："+getNotiTitle(notification.extras)+"\n内容："+getNotiContent(notification.extras));
-        }
+//        public static void printNotify(Notification notification){
+//                LogUtil.debugLog("时间："+getNotitime(notification)+"\n标题："+getNotiTitle(notification.extras)+"\n内容："+getNotiContent(notification.extras));
+//        }
 
         // 打印：通知时间、标题、内容
-//        public static void printNotify(Notification notification){
-//                LogUtil.debugLog(getNotitime(notification));
-//                LogUtil.debugLog(getNotiTitle(notification.extras));
-//                LogUtil.debugLog(getNotiContent(notification.extras));
-//        }
+        public static void printNotify(Notification notification){
+                LogUtil.debugLog("时间："+getNotitime(notification));
+                LogUtil.debugLog("标题："+getNotiTitle(notification.extras));
+                LogUtil.debugLog("内容："+getNotiContent(notification.extras));
+        }
 
 }

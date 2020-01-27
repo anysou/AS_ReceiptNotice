@@ -32,7 +32,7 @@ public class PostTask extends AsyncTask<Map<String, String>, Void, String[]> {
         this.randomtasknum = num;
     }
     public Map<String ,String> recordpostmap;
-    private NetUtil netutil=new NetUtil();     //网络post 实现
+    private NetUtil netutil = new NetUtil();     //网络post 实现
 
     //public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");  // POST 提交数据的类型
     //OkHttpClient client = new OkHttpClient();
@@ -138,7 +138,6 @@ public class PostTask extends AsyncTask<Map<String, String>, Void, String[]> {
                 recordpostmap.put("repeatnum","1");
             asyncResponse.onDataReceivedFailed(errstr,recordpostmap);
         }
-
     }
 
 }

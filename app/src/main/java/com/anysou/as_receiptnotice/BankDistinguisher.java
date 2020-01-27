@@ -1,5 +1,7 @@
 package com.anysou.as_receiptnotice;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,10 +32,13 @@ public class BankDistinguisher {
 
     // 根据信息内容识别银行名称
     public String distinguishByMessageContent(String content){
+        LogUtil.debugLog(content);
+        // 信息内有“银行” 、“收入|存入|转入|入账|来帐”、银行名称
         if(content.contains("银行") && ExternalInfoUtil.containsBankmessageFeature(content))
         {
+            LogUtil.debugLog("包含银行，有入账信息，进一步确定银行名称");
             Stack<String> alternativebank = new Stack<String>();
-            Map <String,String> map = ExternalInfoUtil.getAllBanksNameMap();
+            Map <String,String> map = ExternalInfoUtil.getAllBanksNameMap();  //银行名 集合
             for (String key : map.keySet()) {
                 if(content.contains(key))
                     alternativebank.push(key);
@@ -41,7 +46,7 @@ public class BankDistinguisher {
             if(alternativebank.isEmpty())
                 return "";
             else
-                return map.get(alternativebank.peek());
+                return map.get(alternativebank.peek());  //peek()返回栈顶元素,但不在堆栈中删除它
         }
         else
             return null;
@@ -49,7 +54,7 @@ public class BankDistinguisher {
 
     // 获取资金
     public  String extractMoney(String content){
-        Pattern pattern = Pattern.compile("(收入|存入|转入|入账)(\\(.*\\))?(\\d{1,3}(,\\d{2,3})*(\\.\\d{0,2})?)元?");
+        Pattern pattern = Pattern.compile("(收入|存入|转入|入账|来帐)(\\(.*\\))?(\\d{1,3}(,\\d{2,3})*(\\.\\d{0,2})?)元?");
         Matcher matcher = pattern.matcher(content);
         if(matcher.find()){
             String tmp=matcher.group();

@@ -65,7 +65,9 @@ public class ExternalInfoUtil {
             "存入",
             "转入",
             "入账",
-            "来帐"
+            "入帐",
+            "来帐",
+            "到帐"
     };
 
 

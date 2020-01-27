@@ -21,9 +21,7 @@ public class LogUtil {
 
         public static void infoLog(String info){ Log.i(TAG,info); }
 
-        public static void debugLog(String info){
-                Log.d(TAG,info);
-        }
+        public static void debugLog(String info){Log.d(TAG,info); }
         
         public static void debugLogWithDeveloper(String info){
                 Log.d(DEBUGTAG,info);
