@@ -12,6 +12,11 @@
     <string name="text_language_en">English</string>
     <string name="text_language_cn">Simplified_Chinese</string>
     <string name="text_language_hk">Traditional_Chinese</string>
+    <string name="text_NSOK">Notification bar listening service is on!</string>
+    <string name="text_SETURL">Set POST URL：</string>
+    <string name="text_NSSQTS_1">Warm prompt</string>
+    <string name="text_NSSQTS_2">Currently, you are not authorized to read the notice bar of this system. Please go to authorization before continuing!</string>
+    <string name="text_NSSQTS_3">To empower</string>
 
     <string-array name="pref_entries_encryptmethod">
         <item>des</item>

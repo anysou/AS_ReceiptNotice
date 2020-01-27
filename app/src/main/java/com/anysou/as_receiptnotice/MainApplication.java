@@ -10,11 +10,8 @@ import com.anysou.aslogger.ASLogIConfig;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 
 /**
- * 设置全局变量、全局方法、启动监测服务、初始化TLog(日志工具)、设置LiveEventBus(消息事件总线框架)
- *
- * Andoird中LiveEventBus的使用——用LiveEventBus替代RxBus、EventBus https://blog.csdn.net/qq_43143981/article/details/101678528
- *
- * */
+ * 设置全局变量、全局方法、启动监测服务（通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信）、初始化TLog(日志工具)、设置LiveEventBus(消息事件总线框架)
+ */
 
 public class MainApplication extends Application {
 
@@ -23,13 +20,13 @@ public class MainApplication extends Application {
         return mContext;
     } //全局方法，获取 APP的上下文
     public static final String SP_NAME = "AS_RN";      //定义本APP轻量存储的文件名
-    public static final String LANGUAGE = "language";  //定义存储语言的KEY
-    public static int LANGUAGEID = 0;                  //语言ID 0=英语 1=简体 2=繁体
     public static final String POSTURL = "posturl";    //定义存储POST地址的KEY
+    public static final String LANGUAGE = "language";  //定义存储语言的KEY
+    public static int LANGUAGEID = 0;                  //语言ID 0=英语 1=简体 2=繁体 [可用于一些不语言的数组索引序号]
 
     public static Boolean istest = true;   //是否为测试
 
-    //全局方法，获取 调用的类名和方法名(isTAG 是不是用做TAG) 注意：设置 TAG 的内容长度要 < 23
+    // 全局方法，获取 调用的类名和方法名(isTAG 是不是用做TAG) 注意：设置 TAG 的内容长度要 < 23
     public static String getCMS(boolean isTAG) {
         //StackTrace(堆栈轨迹)存放的就是方法调用栈的信息，每次调用一个方法会产生一个方法栈，当前方法调用另外一个方法时会使用栈将当前方法的现场信息保存在此方法栈当中，获取这个栈就可以得到方法调用的详细过程。
         StackTraceElement[] elements = Thread.currentThread().getStackTrace(); //获取当前线程状态
@@ -51,7 +48,7 @@ public class MainApplication extends Application {
         }
         return reMsg;
     }
-
+    // 用于开发测试时，获取getCMS函数里的jzs值
     public static void getCMSint(String MethodName){
         StackTraceElement[] elements = Thread.currentThread().getStackTrace(); //获取当前线程状态
         int jzs = 0;
@@ -73,15 +70,15 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        startNotificationService();  //通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信
-        initASLogConfig();  //初始化日志管理工具库,用来记录检测到的收款信息
         setSomeGlobal();    //设置一些全局变量
+        startNotificationService();  //启动通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信
+        initASLogConfig();  //初始化日志管理工具库,用来记录检测到的收款信息
         setMessageBus();    //设置LiveEventBus消息事件总线框架（Android组件间通信工具）
     }
 
 
     private void startNotificationService(){
-        Log.d(getCMS(true),"启动：通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信");
+        Log.d(getCMS(true),"启动：通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信");
 
         startService(new Intent(this, NotificationCollectorMonitorService.class));
     }
@@ -111,6 +108,7 @@ public class MainApplication extends Application {
         Log.d(getCMS(true),"启动：设置LiveEventBus消息事件总线框架");
 
         /**LiveEventBus，一款具有生命周期感知能力的消息事件总线框架（Android组件间通信工具）
+         * Andoird中LiveEventBus的使用——用LiveEventBus替代RxBus、EventBus https://blog.csdn.net/qq_43143981/article/details/101678528
          * 消息总线，基于LiveData，具有生命周期感知能力，支持Sticky，支持AndroidX，支持跨进程，支持跨APP
          * https://github.com/JeremyLiao/LiveEventBus
          *

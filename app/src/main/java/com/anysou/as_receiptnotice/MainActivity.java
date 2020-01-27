@@ -75,11 +75,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sp ;             //轻量级的xml存储类
     private int Lid = 0;
     private String urlsample = "http://anypay.wang/anypay/1/";
-    private String[] L_setposturl = {"Set POST URL：","设置POST地址为：","設置POST地址為："};
-    private String[] L_tosetNS_1 = {"Warm prompt:","温馨提示：","溫馨提示："};
-    private String[] L_tosetNS_2 = {"Currently, you are not authorized to read the notice bar of this system. Please go to authorization before continuing!","当前您未授权本系统读取通知栏权限，请前往授权后再继续操作！","當前您未授權本系統讀取通知欄權限，請前往授權後再繼續操作！"};
-    private String[] L_tosetNS_3 = {"To empower","前往授权","前往授權"};
-    private String[] L_NSOK = {"Notification bar listening service is on!","通知栏监听服务已开启！","通知欄監聽服務已開啟！"};
 
     // 此句在 onCreate 前面先执行
     @Override
@@ -148,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor edit = sp.edit();
         edit.putString(MainApplication.POSTURL,posturlstr);  //通过editor对象写入数据
         edit.apply();  //提交数据存入到xml文件中
-        Toast.makeText(getApplicationContext(), L_setposturl[Lid]+posturlstr,Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), this.getText(R.string.text_SETURL)+posturlstr,Toast.LENGTH_SHORT).show();
     }
 
     // 读取设置的posturl
@@ -207,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkNotificationService() {
         if (!isNotificationServiceEnable()) {
             // 对话框
-            new AlertDialog.Builder(this).setTitle(L_tosetNS_1[Lid]).setMessage(L_tosetNS_2[Lid]).setPositiveButton(L_tosetNS_3[Lid], new DialogInterface.OnClickListener()
+            new AlertDialog.Builder(this).setTitle(this.getText(R.string.text_NSSQTS_1)).setMessage(this.getText(R.string.text_NSSQTS_2)).setPositiveButton(this.getText(R.string.text_NSSQTS_3), new DialogInterface.OnClickListener()
             {
                 public void onClick(DialogInterface paramAnonymousDialogInterface, int paramAnonymousInt)
                 {
@@ -215,7 +210,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).create().show();
         } else {
-            Toast.makeText(this,L_NSOK[Lid],Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,L_NSOK[Lid],Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,this.getString(R.string.text_NSOK),Toast.LENGTH_SHORT).show();
         }
     }
 
