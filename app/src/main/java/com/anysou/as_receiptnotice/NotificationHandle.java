@@ -58,11 +58,11 @@ public abstract class NotificationHandle{
 
     // 获取收款额
     protected  String extractMoney(String content){
-        Pattern pattern = Pattern.compile("(到账|收款|收款￥|向你付款|向您付款|入账|来帐)(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){0,2})?元");
+        Pattern pattern = Pattern.compile("(到账|收款|收款￥|向你付款|向您付款|入账|来帐)?(\\d{1,3}(,\\d{2,3})*(\\.\\d{0,2})?)元?");
         Matcher matcher = pattern.matcher(content);
         if(matcher.find()){
-            String tmp=matcher.group();
-            Pattern patternnum = Pattern.compile("(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){0,2})?");
+            String tmp = matcher.group();
+            Pattern patternnum = Pattern.compile("(\\d{1,3}(,\\d{2,3})*(\\.\\d{0,2})?)元?");
             Matcher matchernum = patternnum.matcher(tmp);
             if(matchernum.find())
                 return matchernum.group();

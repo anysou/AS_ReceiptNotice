@@ -50,7 +50,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <!--注册一个静态广播，并添加权限-->
+        <!--注册一个静态广播，并添加权限，实现开机自启动-->
         <receiver android:name=".AutoReceiver" android:enabled="true" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

@@ -3,6 +3,7 @@ package com.anysou.as_receiptnotice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * 开机 广播监听 并启动APP

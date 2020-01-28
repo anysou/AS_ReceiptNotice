@@ -1,16 +1,23 @@
 package com.anysou.as_receiptnotice;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.anysou.aslogger.ASLogApplication;
 import com.anysou.aslogger.ASLogIConfig;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 
 /**
- * 设置全局变量、全局方法、启动监测服务（通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信）、初始化TLog(日志工具)、设置LiveEventBus(消息事件总线框架)
+ * 设置全局变量、全局方法、启动监测服务（通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信）、初始化TLog(日志工具)、设置LiveEventBus(消息事件总线框架)、监听判断是否进入后台
  */
 
 public class MainApplication extends Application {
@@ -23,6 +30,7 @@ public class MainApplication extends Application {
     public static final String POSTURL = "posturl";    //定义存储POST地址的KEY
     public static final String LANGUAGE = "language";  //定义存储语言的KEY
     public static int LANGUAGEID = 0;                  //语言ID 0=英语 1=简体 2=繁体 [可用于一些不语言的数组索引序号]
+    public static int activityCount = 0;               //Activity开启的数量
 
     public static Boolean istest = true;   //是否为测试
 
@@ -74,6 +82,14 @@ public class MainApplication extends Application {
         startNotificationService();  //启动通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信
         initASLogConfig();  //初始化日志管理工具库,用来记录检测到的收款信息
         setMessageBus();    //设置LiveEventBus消息事件总线框架（Android组件间通信工具）
+        initActivityLife(); //通过接口监听所有Activity的生命周期状态，实现判断是否进入后台
+    }
+
+
+    private void setSomeGlobal(){
+        Log.d(getCMS(true),"启动：设置一些全局变量");
+
+        mContext = getApplicationContext();
     }
 
 
@@ -98,12 +114,9 @@ public class MainApplication extends Application {
                 .setTag("GoFileService");  //logcat日志过滤tag。
     }
 
-    private void setSomeGlobal(){
-        Log.d(getCMS(true),"启动：设置一些全局变量");
 
-        mContext = getApplicationContext();
-    }
 
+    //==============  设置 LiveEventBus 消息事件总线框架（Android组件间通信工具） =========
     public void setMessageBus(){
         Log.d(getCMS(true),"启动：设置LiveEventBus消息事件总线框架");
 
@@ -135,5 +148,53 @@ public class MainApplication extends Application {
                 .lifecycleObserverAlwaysActive(true)
                 .autoClear(false);
     }
+
+
+    //==============  通过接口监听所有Activity的生命周期状态，实现判断是否进入后台 ============================
+    //Android--判断App处于前台还是后台的方案  https://blog.csdn.net/u011386173/article/details/79095757
+    private void initActivityLife(){
+        this.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+            }
+            @Override
+            public void onActivityStarted(@NonNull Activity activity) {
+                if (activityCount == 0) {
+                    //app回到前台
+                    Log.i("test","回到前台");
+                }
+                activityCount++;
+            }
+            @Override
+            public void onActivityResumed(@NonNull Activity activity) {
+            }
+            @Override
+            public void onActivityPaused(@NonNull Activity activity) {
+            }
+            @Override
+            public void onActivityStopped(@NonNull Activity activity) {
+                MainApplication.activityCount--;
+                if (MainApplication.activityCount == 0) {
+                    //Toast.makeText(getApplicationContext(),"后台运行中！",Toast.LENGTH_LONG).show();  //方法一：直接吐司
+                    //sendLocalBroadcast("后台运行中，点击通知切换到前台！"); //方法二： 发本地广播；接收广播后吐司；并发布通知
+                    LiveEventBus.get("key").post("APP后台运行中，点击通知切换到前台！");  //方法二： 发消息；接收广播后吐司；并发布通知
+                }
+            }
+            @Override
+            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+            }
+            @Override
+            public void onActivityDestroyed(@NonNull Activity activity) {
+            }
+        });
+    }
+
+    // 发本地广播
+    private void sendLocalBroadcast(String msg) {
+        Intent intent = new Intent(getPackageName());
+        intent.putExtra("text", msg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
 
 }

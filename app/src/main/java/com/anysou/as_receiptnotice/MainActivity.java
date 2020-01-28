@@ -1,23 +1,32 @@
 package com.anysou.as_receiptnotice;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.lifecycle.Observer;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.app.Activity;
-import android.content.ComponentName;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,7 +38,7 @@ import android.widget.Toast;
 
 import com.github.pedrovgs.lynx.LynxActivity;
 import com.github.pedrovgs.lynx.LynxConfig;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jeremyliao.liveeventbus.LiveEventBus;
 
 /**
  * android使用NotificationListenerService监听通知栏消息三环节步骤：
@@ -64,11 +73,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  *    3A) getApplication(): andorid 开发中共享全局数据;
  * 4、getBaseContext()： 返回由构造函数指定或setBaseContext()设置的上下文.
  *
+ *
  * */
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";  //设置标签
+    private final String TAG = getClass().getSimpleName(); //获取 “MainActivity”
+    //private static final String TAG = "MainActivity";  //设置标签
     private Toolbar myToolbar;                 //工具导航栏
     private ViewPager2 viewpage;               //分片页面容器切换滚动
     private AutoCompleteTextView posturl;      //随笔提示文本组件
@@ -76,13 +87,16 @@ public class MainActivity extends AppCompatActivity {
     private int Lid = 0;
     private String urlsample = "http://anypay.wang/anypay/1/";
 
+    private LocalBroadcastReceiver localReceiver = new LocalBroadcastReceiver();  //本地广播接收器
+    private LocalBroadcastManager localBroadcastManager = null;   //本地广播管理器
+
     // 此句在 onCreate 前面先执行
     @Override
     protected void attachBaseContext(Context newBase) {
         //MainApplication.getCMSint("attachBaseContext");
         Log.i(MainApplication.getCMS(true),"该方法首句");
 
-        Context context = LanContextWrapper.wrap(newBase);
+        Context context = LanContextWrapper.wrap(newBase);  //定义语言环境
         super.attachBaseContext(context);
     }
 
@@ -99,7 +113,27 @@ public class MainActivity extends AppCompatActivity {
         Lid = MainApplication.LANGUAGEID;
         initView();            // 初始化所有的组件及数据
         posturlSuggestion();   // 实现：光标点上去就显示一组默认的下拉数据。
+
+        /**注册本地广播
+         * LocalBroadcastManager（本地广播管理类）的getInstance(this)方法获取实例
+         * 注册广播消息时是调用localBroadcastManager实例的registerReceiver(参数1,参数2)方法注册（参数1是本地广播接受者，参数2是过滤器只选择接收特定的广播消息）
+         * */
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(getPackageName());
+        localBroadcastManager.registerReceiver(localReceiver, intentFilter);
+
+        //订阅 消息框架 “key” 的值变化
+        LiveEventBus.get("key",String.class).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Log.i("test",s);
+                sendToast(s);           // 吐司
+                sendLocalBroadcast(s);  // 发本地广播
+            }
+        });
     }
+
 
     //初始化所有的组件及数据
     private void initView() {
@@ -190,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     //==============================  通知栏监听服务 ==============================
     @Override
     protected void onResume() {
@@ -275,9 +308,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     //===========================   菜单 ===========================================
 
     @Override  //启动时建立 菜单（菜单布局对应在res/menu/目录下）
@@ -347,11 +377,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // ================ 发本地广播 ===================================
+    private void sendLocalBroadcast(String msg) {
+        Intent intent = new Intent(getPackageName());
+        intent.putExtra("text", msg);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        localBroadcastManager.unregisterReceiver(localReceiver); //注销本地广播
     }
 
 
+    private void sendToast(String msg){
+        Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+    }
+
+}
+
+
+
+
+//================================= 广播接收器 类 =================================
+
+class LocalBroadcastReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        //逻辑代码
+        String text = intent.getStringExtra("text");
+        Toast.makeText(context,text,Toast.LENGTH_LONG).show();
+        if(text.contains("后台运行")){
+            // 获取系统 通知管理 服务
+            NotificationManager mNotifyMgr =  (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+            Intent ClickIntent = new Intent(context,MainActivity.class);
+            PendingIntent pi = PendingIntent.getActivity(context, 1, ClickIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            // 构建 Notification
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            builder.setSmallIcon(R.drawable.log_icon)  //设置通知左侧的小图标
+                    .setContentTitle("我在后台")        //设置通知标题
+                    .setContentText("点击切换到前台!")     //设置通知内容
+                    .setAutoCancel(true)     //设置点击通知后自动删除通知
+                    .setContentIntent(pi)    //设置点击通知时的响应事件
+                    .setPriority(Notification.PRIORITY_HIGH)  //优先级
+                    .setWhen(System.currentTimeMillis())     //设置时间,long类型自动转换
+                    .setDefaults(Notification.DEFAULT_ALL);
+            //兼容  API 16    android 4.1 Jelly Bean    果冻豆
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+                builder.setShowWhen(true);      //设置显示通知时间
+            }
+            // 兼容  API 26，Android 8.0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                // 创建一个通知渠道至少需要渠道ID、渠道名称以及重要等级这三个参数，
+                NotificationChannel notificationChannel = new NotificationChannel("AppNotificationId", "NotificationName", NotificationManager.IMPORTANCE_DEFAULT);
+                // 注册通道，注册后除非卸载再安装否则不改变
+                mNotifyMgr.createNotificationChannel(notificationChannel);
+                builder.setChannelId("AppNotificationId");
+            }
+            mNotifyMgr.notify(1, builder.build());  // 发送通知
+        }
+    }
 }
