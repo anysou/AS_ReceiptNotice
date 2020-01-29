@@ -44,7 +44,7 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         else
             return posturl;
     }
-    private int NotificationRunId = 0;  // 监听服务在线的通知中的ID号
+    private int NotificationRunId = 9;  // 监听服务在线的通知中的ID号
 
     @Override
     public void onCreate() {
