@@ -62,7 +62,7 @@ public abstract class NotificationHandle{
         Matcher matcher = pattern.matcher(content);
         if(matcher.find()){
             String tmp = matcher.group();
-            Pattern patternnum = Pattern.compile("(\\d{1,3}(,\\d{2,3})*(\\.\\d{0,2})?)元?");
+            Pattern patternnum = Pattern.compile("(\\d{1,3}(,\\d{2,3})*(\\.\\d{0,2})?)?");
             Matcher matchernum = patternnum.matcher(tmp);
             if(matchernum.find())
                 return matchernum.group();

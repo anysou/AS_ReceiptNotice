@@ -12,6 +12,8 @@
     <string name="text_language_en">English</string>
     <string name="text_language_cn">Simplified_Chinese</string>
     <string name="text_language_hk">Traditional_Chinese</string>
+    <string name="channel_critical">Critical event</string>
+    <string name="channel_default">Default events</string>
     <string name="text_NSOK">Notification bar listening service is on!</string>
     <string name="text_SETURL">Set POST URL：</string>
     <string name="text_NSSQTS_1">Warm prompt</string>

@@ -39,6 +39,8 @@
          name = MainApplication 首先启动。
          theme = @style/Theme.AppCompat.Light.NoActionBar 主题
          标题文字： 英文 -> res\values\strings.xml  中文 -> res\values-zh\strings.xml
+         persistent="true" : 1)在系统刚起来的时候，该App也会被启动起来
+            2)该App被强制杀掉后，系统会重启该App。这种情况只针对系统内置的App，第三方安装的App不会被重启。
     -->
     <application
         android:name=".MainApplication"
@@ -48,6 +50,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:persistent="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <!--注册一个静态广播，并添加权限，实现开机自启动-->
@@ -69,16 +72,24 @@
 
 
         <!-- 注册服务：通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信 -->
-        <service android:name=".NotificationCollectorMonitorService" />
+        <!--一般情况下一个服务没有自己独立的进程，它一般是作为一个线程运行于它所在的应用的进程中。
+        但是也有例外，Android声明文件中的android:process属性却可以为任意组件包括应用指定进程，
+        换句话说，通过在声明文件中设置android:process属性,
+        我们可以让组件（例如Activity, Service等）和应用(Application)创建并运行于我们指定的进程中。
+        冒号’:’这个前缀将把这个名字附加到你的包所运行的标准进程名字的后面作为新的进程名称。-->
+        <service android:name=".NotificationCollectorMonitorService" android:process=":run" />
+
 
         <!-- 注册服务，通知监听服务，获取权限：permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" -->
         <service
-            android:name=".NLService"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
-            <intent-filter>
+            android:name=".NLService" android:process=":run"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"  >
+            <!--对于intent-filter可以通过android:priority = "1000"这个属性设置最高优先级，1000是最高值，如果数字越小则优先级越低-->
+            <intent-filter android:priority="1000">
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
 
         <!-- logcat 好像可以不写此句 -->
         <activity android:name="com.github.pedrovgs.lynx.LynxActivity" />
@@ -102,6 +113,18 @@
                 <action android:name="com.anysou.as_receiptnotice.showfilelog"/>
             </intent-filter>
         </activity>
+
+
+        <!--指定该应用程序必须链接的共享类库。这个元素告诉系统该应用程序包的类装载器中所包含的类库代码。
+        android:name="org.apache.http.legacy" 用于指定类库的名称
+        android:required 指定应用程序是否需要有android:name属性所指定的类库。
+        true：没有这个库应用程序无法工作。如果用户设备设备上没有这个类库，系统不允许该应用程序安装在这个设备上。
+        false：如果该类库存在，则应用程序能够使用这个类库，但是如果有必要，也可以设计成没有该类库，应用程序也能够工作。
+          系统会允许应用程序安装，即使该类库不存在。如果使用false，就要在运行时对类库的有效性进行必要的检查。对于类库的检查，可以使用反射机制来判断一个具体的类是否有效。
+        -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
     </application>
 

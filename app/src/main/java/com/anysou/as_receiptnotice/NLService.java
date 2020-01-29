@@ -1,6 +1,8 @@
 package com.anysou.as_receiptnotice;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,8 +18,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -44,7 +44,45 @@ public class NLService extends NotificationListenerService implements AsyncRespo
         else
             return posturl;
     }
+    private int NotificationRunId = 0;  // 监听服务在线的通知中的ID号
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Notification notice = new Notification();
+        startForeground(1, notice);
+    }
+
+    @SuppressLint("WrongConstant")
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //发送一个后台运行的通知; 发之前要先判断该通知是否已存在
+        //Intent ClickIntent = new Intent(context,MainActivity.class);
+        //PendingIntent pi = PendingIntent.getActivity(context, 1, ClickIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Log.i("test", "NLService onStartCommand 0");
+        if(!MainApplication.NCRun) {
+            Log.i("test", "NLService onStartCommand 1");
+            NotificationRun.NCSend(getApplicationContext(), NotificationChannels.CRITICAL_ID, 0,
+                    "通知栏监听服务", "通知栏监听服务已启动",
+                    false, null, NotificationRunId, true);
+            MainApplication.NCRun = true;
+            Log.i("test", "NLService onStartCommand 2");
+        }
+
+        //onStartCommand 中 手动返回START_STICKY，亲测当service因内存不足被kill，当内存又有的时候，service又被重新创建
+        flags = START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override  //服务销毁时，清除该通知
+    public void onDestroy() {
+        if(MainApplication.NCRun){
+            NotificationRun.NCClearId(getApplicationContext(),NotificationRunId);
+            MainApplication.NCRun = false;
+        }
+        Log.i(TAG, "onDestroy");
+        super.onDestroy();
+    }
 
     @Override
     public void onListenerConnected() {

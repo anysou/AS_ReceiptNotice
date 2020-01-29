@@ -58,6 +58,16 @@ public class NotificationCollectorMonitorService extends Service {
         ensureCollectorRunning();  //确保通知监听服务组件运行中
         setWakelock();             //根据设置，获取唤醒锁，确保CPU不进入休眠状态（android.permission.WAKE_LOCK权限）
         startEchoTimer();          //根据配置，启动Socket.IO实现即时通讯（android.permission.INTERNET权限、io.socket、gson库）
+
+        Log.i("test", "N onStartCommand 0");
+        if(!MainApplication.NCRun) {
+            Log.i("test", "N onStartCommand 1");
+            NotificationRun.NCSend(getApplicationContext(), NotificationChannels.CRITICAL_ID, 0,
+                    "通知栏监听服务", "通知栏监听服务已启动",
+                    false, null, 0, true);
+            MainApplication.NCRun = true;
+            Log.i("test", "N onStartCommand 2");
+        }
     }
 
     //=================== 通过查询所有服务，确定NLService 通知监听服务是否启动，没启动则启动 ======================

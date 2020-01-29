@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +18,8 @@ import com.anysou.aslogger.ASLogIConfig;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 
 /**
- * 设置全局变量、全局方法、启动监测服务（通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信）、初始化TLog(日志工具)、设置LiveEventBus(消息事件总线框架)、监听判断是否进入后台
+ * 设置全局变量、全局方法、创建通知渠道、启动监测服务（通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信）、
+ * 初始化TLog(日志工具)、设置LiveEventBus(消息事件总线框架)、监听判断是否进入后台
  */
 
 public class MainApplication extends Application {
@@ -31,6 +33,10 @@ public class MainApplication extends Application {
     public static final String LANGUAGE = "language";  //定义存储语言的KEY
     public static int LANGUAGEID = 0;                  //语言ID 0=英语 1=简体 2=繁体 [可用于一些不语言的数组索引序号]
     public static int activityCount = 0;               //Activity开启的数量
+    public static Boolean NCRun = false;               //通知监听服务是否启动
+
+    private LocalBroadcastReceiver localReceiver = new LocalBroadcastReceiver();  //本地广播接收器
+    private LocalBroadcastManager localBroadcastManager = null;   //本地广播管理器
 
     public static Boolean istest = true;   //是否为测试
 
@@ -78,11 +84,17 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        setSomeGlobal();    //设置一些全局变量
+        setSomeGlobal();        //设置一些全局变量
+        // 兼容  API 26，Android 8.0; 建立通知渠道
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannels.createAllNotificationChannels(this);
+        }
+
         startNotificationService();  //启动通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信
-        initASLogConfig();  //初始化日志管理工具库,用来记录检测到的收款信息
-        setMessageBus();    //设置LiveEventBus消息事件总线框架（Android组件间通信工具）
-        initActivityLife(); //通过接口监听所有Activity的生命周期状态，实现判断是否进入后台
+        initASLogConfig();      //初始化日志管理工具库,用来记录检测到的收款信息
+        setMessageBus();        //设置LiveEventBus消息事件总线框架（Android组件间通信工具）
+        initActivityLife();     //通过接口监听所有Activity的生命周期状态，实现判断是否进入后台
+        initLocalBroadcast();   //注册本地广播
     }
 
 
@@ -188,6 +200,21 @@ public class MainApplication extends Application {
             }
         });
     }
+
+
+    //=============== 注册本地广播 =======================================================
+    private void initLocalBroadcast(){
+        /**注册本地广播
+         * LocalBroadcastManager（本地广播管理类）的getInstance(this)方法获取实例
+         * 注册广播消息时是调用localBroadcastManager实例的registerReceiver(参数1,参数2)方法注册（参数1是本地广播接受者，参数2是过滤器只选择接收特定的广播消息）
+         * */
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(getPackageName());
+        localBroadcastManager.registerReceiver(localReceiver, intentFilter);
+        sendLocalBroadcast("初始化本地广播完成！");
+    }
+
 
     // 发本地广播
     private void sendLocalBroadcast(String msg) {
