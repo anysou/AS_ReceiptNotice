@@ -2,6 +2,7 @@ package com.anysou.as_receiptnotice;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,6 +17,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.anysou.aslogger.ASLogApplication;
 import com.anysou.aslogger.ASLogIConfig;
 import com.jeremyliao.liveeventbus.LiveEventBus;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 设置全局变量、全局方法、创建通知渠道、启动监测服务（通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信）、
@@ -95,8 +99,8 @@ public class MainApplication extends Application {
         setMessageBus();        //设置LiveEventBus消息事件总线框架（Android组件间通信工具）
         initActivityLife();     //通过接口监听所有Activity的生命周期状态，实现判断是否进入后台
         initLocalBroadcast();   //注册本地广播
+        initACTION_TIME_TICK(); //注册时间相关的广播，系统每分钟会发出该广播
     }
-
 
     private void setSomeGlobal(){
         Log.d(getCMS(true),"启动：设置一些全局变量");
@@ -107,8 +111,8 @@ public class MainApplication extends Application {
 
     private void startNotificationService(){
         Log.d(getCMS(true),"启动：通知监听服务、根据配置获得唤醒锁、根据配置进行Echo实时通信");
-
-        startService(new Intent(this, NotificationCollectorMonitorService.class));
+        Intent intent = new Intent(this, NotificationCollectorMonitorService.class);
+        startService(intent);  //start可以指定特定的class或者是action,Intent是启动的关键
     }
 
 
@@ -223,5 +227,27 @@ public class MainApplication extends Application {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+
+    //==================== 注册获取系统的时间广播 ===============
+    private void initACTION_TIME_TICK(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_TIME_TICK);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        registerReceiver(timeBroadCastReceiver, filter);
+    }
+
+    // 接收系统的时间广播
+    private BroadcastReceiver timeBroadCastReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.ACTION_TIME_TICK.equals(intent.getAction())){
+                Date date = new Date(System.currentTimeMillis());
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Log.i("test", "时间广播："+format.format(date));  //每一分钟执行一次，可以用来检测某个服务是否运行了
+            }else if(intent.ACTION_TIME_CHANGED.equals(intent.getAction())){
+                Log.i("test", "时间广播：系统时间改变了");
+            }
+        }
+    };
 
 }

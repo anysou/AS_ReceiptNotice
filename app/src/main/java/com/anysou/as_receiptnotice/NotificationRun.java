@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat;
 public class NotificationRun {
 
     // 发送通知                    上下文      Android 8.0的渠道ID      小图标      标题         内容       是否点击自动删除      点击的动作    通知ID  是否设定不可删除标签
-    public static void NCSend(Context context,String channel_id,int smallIcon,String title,String text,Boolean autoCancel,PendingIntent pi,int id,boolean flags){
+    public static Notification getNC(Context context,String channel_id,int smallIcon,String title,String text,Boolean autoCancel,PendingIntent pi,int id,boolean flags){
 
         if(smallIcon==0){
             smallIcon = R.drawable.log_icon;
@@ -35,8 +35,6 @@ public class NotificationRun {
             pi = PendingIntent.getActivity(context, 1, ClickIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         }
 
-        // 获取系统 通知管理 服务
-        NotificationManager mNotifyMgr =  (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
         // 构建 Notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(smallIcon)   //设置通知左侧的小图标
@@ -60,12 +58,23 @@ public class NotificationRun {
 
         Notification notification = builder.build();
 
-        if(flags) {
+        if(flags) {  //标记不可删除通知
             notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
             notification.flags |= Notification.FLAG_NO_CLEAR;
         }
 
-        mNotifyMgr.notify(id, notification);  // 发送通知
+        return notification;  // 通知
+    }
+
+    // 发送通知                    上下文      Android 8.0的渠道ID      小图标      标题         内容       是否点击自动删除      点击的动作    通知ID  是否设定不可删除标签
+    public static void NCSend(Context context,String channel_id,int smallIcon,String title,String text,Boolean autoCancel,PendingIntent pi,int id,boolean flags){
+
+        // 获取系统 通知管理 服务
+        NotificationManager mNotifyMgr =  (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+        // 获得通知构建
+        Notification notification = getNC(context,channel_id,smallIcon,title,text,autoCancel,pi,id,flags);
+        // 发送通知
+        mNotifyMgr.notify(id, notification);
     }
 
 

@@ -77,7 +77,7 @@ public class FragmentLogList extends Fragment {
         loglist.clear();
         loglist.addAll(FileLogListUtil.getLogList());
         mAdapter.notifyDataSetChanged();
-        LogListUtil.debugLog("更新Loglist in Fragment列表:");
+        LogUtil.debugLog("更新Loglist in Fragment列表:");
     }
 
     //发送消息
@@ -87,7 +87,7 @@ public class FragmentLogList extends Fragment {
                 .observe(this, new Observer<String>() {
                     @Override
                     public void onChanged(@Nullable String s) {
-                        LogListUtil.debugLog("收到订阅消息:update_recordlist " + s);
+                        LogUtil.debugLog("收到订阅消息:update_recordlist " + s);
                         updateList();
                     }
                 });

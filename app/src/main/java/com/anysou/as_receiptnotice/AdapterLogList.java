@@ -35,7 +35,7 @@ public class AdapterLogList extends Adapter<AdapterLogList.RecyclerHolder> {
                 if(onerecord!=null)
                     holder.recordtext.setText(onerecord);
                 else
-                    LogListUtil.debugLogWithDeveloper("获取到的loglist 的item text为空");
+                    LogUtil.debugLogWithDeveloper("获取到的loglist 的item text为空");
                 
         }
         

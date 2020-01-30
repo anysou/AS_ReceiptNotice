@@ -2,6 +2,8 @@ package com.anysou.as_receiptnotice;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,6 +15,9 @@ import android.os.Build;
 import android.util.Log;
 import android.os.PowerManager.WakeLock;
 import android.os.PowerManager;
+
+import androidx.core.app.NotificationCompat;
+
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import java.util.List;
@@ -40,40 +45,83 @@ import okhttp3.ConnectionSpec;
 /**
  * 在你的 Application 的 onCreate 中调用： startService(new Intent(this, NotificationCollectorMonitorService.class));
  * 同时记得在 AndroidManifest.xml 中注册服务： <service android:name=".NotificationCollectorMonitorService"/>
+ *
+ * 确保通知监听服务组件运行中、根据设置，获取唤醒锁、根据配置，启动Socket.IO实现即时通讯
  */
 
 
 public class NotificationCollectorMonitorService extends Service {
 
-    private static final String TAG = "NCMS";  //注意：设置 TAG 的内容长度要 < 23
+    private static final String TAG = "test";  //注意：设置 TAG 的内容长度要 < 23
     private Timer timer = null;                // 定时器
     private String echointerval = null;        // 时间间隔
     private TimerTask echotimertask =null;     // 时间任务
     private WakeLock wl = null;                // 休眠锁
+    public static final int NOTICE_ID = 100;   // 用于前台服务，非0
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        setFrontService();         //设定自己为前台服务
         ensureCollectorRunning();  //确保通知监听服务组件运行中
         setWakelock();             //根据设置，获取唤醒锁，确保CPU不进入休眠状态（android.permission.WAKE_LOCK权限）
         startEchoTimer();          //根据配置，启动Socket.IO实现即时通讯（android.permission.INTERNET权限、io.socket、gson库）
+    }
 
-        Log.i("test", "N onStartCommand 0");
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //onStartCommand 中 手动返回START_STICKY，亲测当service因内存不足被kill，当内存又有的时候，service又被重新创建
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+
+        // 如果Service被杀死，干掉通知
+        if(MainApplication.NCRun){
+            stopForeground(true);
+            NotificationRun.NCClearId(getApplicationContext(),NOTICE_ID);
+            MainApplication.NCRun = false;
+        }
+
+        // 重启自己
+        Intent intent = new Intent(getApplicationContext(), NotificationCollectorMonitorService.class);
+        startService(intent);
+
+        Log.d("test", "NCMS---->onDestroy，前台service被杀死,并重启");
+
+        super.onDestroy();
+    }
+
+
+    //===================  设定自己为前台服务 ==========================
+    private void setFrontService(){
+        // 把本服务变成前台服务，发布特定通知
         if(!MainApplication.NCRun) {
-            Log.i("test", "N onStartCommand 1");
-            NotificationRun.NCSend(getApplicationContext(), NotificationChannels.CRITICAL_ID, 0,
-                    "通知栏监听服务", "通知栏监听服务已启动",
-                    false, null, 0, true);
+            //https://blog.csdn.net/shift_wwx/article/details/9952045
+            //如果API大于18，需要弹出一个可见通知
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+
+                Notification notification = NotificationRun.getNC(getApplicationContext(), NotificationChannels.CRITICAL_ID, 0,
+                        "前台服务", "NCMS服务已启动", false, null, NOTICE_ID, true);
+
+                startForeground(NOTICE_ID, notification);  // 注意使用 startForeground ，id 为 0 将不会显示 notification
+
+            } else {
+                startForeground(NOTICE_ID, new Notification());
+            }
             MainApplication.NCRun = true;
-            Log.i("test", "N onStartCommand 2");
         }
     }
+
 
     //=================== 通过查询所有服务，确定NLService 通知监听服务是否启动，没启动则启动 ======================
 
     // 确保服务组件运行中
     private void ensureCollectorRunning() {
+        Log.d(MainApplication.getCMS(true),"启动：确保服务组件运行中");
+
         // 获取要检测运行的 组件名称
         ComponentName collectorComponent = new ComponentName(this, /* 继承 NotificationListenerService*/ NLService.class);
         Log.v(TAG, "要确保运行的组件名称: " + collectorComponent);
@@ -99,12 +147,19 @@ public class NotificationCollectorMonitorService extends Service {
             Log.d(TAG, "确保运行的服务组件运行中。。。");
             return;
         }
-        Log.d(TAG, "确保运行的服务组件尚未运行, 重启中。。。");
-        toggleNotificationListenerService();
+
+        // 如果本服务是前台服务，则可以使用startService启动其他组件或服务； 否则只能用 setComponentEnabledSetting 方法
+        if(MainApplication.NCRun) {
+            startService(new Intent(this, NLService.class));
+            Log.d(TAG, "startService 方式 启动 NLService");
+        } else {
+            toggleNotificationListenerService();
+            Log.d(TAG, "setComponentEnabledSetting 方式 启动 NLService");
+        }
     }
-    // 重启服务组件
+
+    // setComponentEnabledSetting 方法 启动服务组件 （如果本CLASS服务不是前台服务，只能通过这个方法来启动 NLService）
     private void toggleNotificationListenerService() {
-        //Log.d(TAG, "toggleNotificationListenerService() called");
         ComponentName thisComponent = new ComponentName(this, /*getClass()*/ NLService.class);
         PackageManager pm = getPackageManager();
         /**componentName：组件名称（本例是服务组件。如果是app的mainActivity组件，可实现程序图标隐藏）
@@ -357,11 +412,6 @@ public class NotificationCollectorMonitorService extends Service {
         }
     }
 
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
-    }
 
     @Override
     public IBinder onBind(Intent intent) {

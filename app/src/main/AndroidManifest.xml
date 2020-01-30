@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.anysou.as_receiptnotice">
     <!--
+    定位、获取手机信息（手机号、IMEI、IMSI）、读取应用列表、相机、录音、读写手机存储、锁屏显示、后台弹出界面、显示悬浮窗、常驻通知
+
     GPS定位信息 (可伪造，来自Android.Permission.FINE_LOCATION)
 　　基站定位   (可伪造，来自Android.Permission.COARSE_LOCATION)
 　　系统自带浏览器的历史，书签(Android.Permission.BOOKMARKS)
@@ -33,13 +35,15 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!--访问蓝牙权限-->
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <!--android 9.0上使用前台服务，需要添加权限-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
     <!-- 只允许访问https，不能直接访问http。处理方法在application 加 networkSecurityConfig
          name = MainApplication 首先启动。
          theme = @style/Theme.AppCompat.Light.NoActionBar 主题
          标题文字： 英文 -> res\values\strings.xml  中文 -> res\values-zh\strings.xml
-         persistent="true" : 1)在系统刚起来的时候，该App也会被启动起来
+         persistent="true" : 常驻应用 1)在系统刚起来的时候，该App也会被启动起来
             2)该App被强制杀掉后，系统会重启该App。这种情况只针对系统内置的App，第三方安装的App不会被重启。
     -->
     <application
@@ -71,18 +75,27 @@
         </activity>
 
 
-        <!-- 注册服务：通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信 -->
-        <!--一般情况下一个服务没有自己独立的进程，它一般是作为一个线程运行于它所在的应用的进程中。
-        但是也有例外，Android声明文件中的android:process属性却可以为任意组件包括应用指定进程，
-        换句话说，通过在声明文件中设置android:process属性,
-        我们可以让组件（例如Activity, Service等）和应用(Application)创建并运行于我们指定的进程中。
-        冒号’:’这个前缀将把这个名字附加到你的包所运行的标准进程名字的后面作为新的进程名称。-->
-        <service android:name=".NotificationCollectorMonitorService" android:process=":run" />
+<!-- 注册服务：
+android:name　　      服务类名
+android:label　　     服务的名字，如果此项不设置，那么默认显示的服务名则为类名
+android:icon　　      服务的图标
+android:permission   申明此服务的权限，这意味着只有提供了该权限的应用才能控制或连接此服务
+android:process　　   表示该服务是否运行在另外一个进程，如果设置了此项，那么将会在包名后面加上这段字符串表示另一进程的名字. (应用对远程服务才有效)
+android:enabled　　   如果此项设置为 true，那么 Service 将会默认被系统启动，不设置默认此项为 false
+android:exported　    表示该服务是否能够被其他应用程序所控制或连接，不设置默认此项为 false
+-->
 
+        <!-- 注册服务：通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信 -->
+        <service android:name=".NotificationCollectorMonitorService"
+            android:enabled="true"  android:exported="true"  android:process=":NCMS"/>
+
+        <!-- 注册服务：通知监听服务、根据配置获的唤醒锁、根据配置进行Echo实时通信 -->
+        <service android:name=".CancelNoticeService"
+            android:enabled="true"  android:exported="true"  android:process=":CancelNCMS"/>
 
         <!-- 注册服务，通知监听服务，获取权限：permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" -->
         <service
-            android:name=".NLService" android:process=":run"
+            android:name=".NLService"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"  >
             <!--对于intent-filter可以通过android:priority = "1000"这个属性设置最高优先级，1000是最高值，如果数字越小则优先级越低-->
             <intent-filter android:priority="1000">

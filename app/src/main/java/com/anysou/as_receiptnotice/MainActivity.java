@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 //    private LocalBroadcastReceiver localReceiver = new LocalBroadcastReceiver();  //本地广播接收器
 //    private LocalBroadcastManager localBroadcastManager = null;   //本地广播管理器
 
-    // 此句在 onCreate 前面先执行
+    // 此句在 onCreate 前面先执行，这里用来实现语言切换
     @Override
     protected void attachBaseContext(Context newBase) {
         //MainApplication.getCMSint("attachBaseContext");
