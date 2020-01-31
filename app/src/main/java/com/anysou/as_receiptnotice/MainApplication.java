@@ -169,6 +169,7 @@ public class MainApplication extends Application {
     //==============  通过接口监听所有Activity的生命周期状态，实现判断是否进入后台 ============================
     //Android--判断App处于前台还是后台的方案  https://blog.csdn.net/u011386173/article/details/79095757
     private void initActivityLife(){
+
         this.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {

@@ -3,7 +3,6 @@ package com.anysou.as_receiptnotice;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,7 +15,6 @@ import android.util.Log;
 import android.os.PowerManager.WakeLock;
 import android.os.PowerManager;
 
-import androidx.core.app.NotificationCompat;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -47,6 +45,11 @@ import okhttp3.ConnectionSpec;
  * 同时记得在 AndroidManifest.xml 中注册服务： <service android:name=".NotificationCollectorMonitorService"/>
  *
  * 确保通知监听服务组件运行中、根据设置，获取唤醒锁、根据配置，启动Socket.IO实现即时通讯
+ *
+ * 前台服务是那些被认为用户知道（用户所认可的）且在系统内存不足的时候不允许系统杀死的服务。
+ * 前台服务必须给状态栏提供一个通知，它被放到正在运行(Ongoing)标题之下——这就意味着通知只有在这个服务被终止或从前台主动移除通知后才能被解除。
+ *
+
  */
 
 
@@ -80,7 +83,7 @@ public class NotificationCollectorMonitorService extends Service {
 
         // 如果Service被杀死，干掉通知
         if(MainApplication.NCRun){
-            stopForeground(true);
+            stopForeground(true); // 停止前台服务--参数：表示是否移除之前的通知
             NotificationRun.NCClearId(getApplicationContext(),NOTICE_ID);
             MainApplication.NCRun = false;
         }
@@ -103,7 +106,8 @@ public class NotificationCollectorMonitorService extends Service {
             //如果API大于18，需要弹出一个可见通知
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 
-                Notification notification = NotificationRun.getNC(getApplicationContext(), NotificationChannels.CRITICAL_ID, 0,
+                NotificationRun notificationRun = new NotificationRun(getApplicationContext());
+                Notification notification = notificationRun.getNC(getApplicationContext(), NotificationChannels.CRITICAL_ID, 0,
                         "前台服务", "NCMS服务已启动", false, null, NOTICE_ID, true);
 
                 startForeground(NOTICE_ID, notification);  // 注意使用 startForeground ，id 为 0 将不会显示 notification

@@ -3,21 +3,14 @@ package com.anysou.as_receiptnotice;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.Observer;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
@@ -117,8 +110,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(String s) { //获取"key" 变化的新值
                 Log.i("test",s);
-                sendToast(s);           // 吐司
-                sendLocalBroadcast(s);  // 发本地广播
+
+                if(s.contains("SetNFChannel=")){
+                    gotoSetNFChannel(s.split("=")[1]);
+                } else {
+                    sendToast(s);           // 吐司
+                    sendLocalBroadcast(s);  // 发本地广播
+                }
             }
         });
 
@@ -296,6 +294,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this,"您的手机无法直接调用“获取通知栏权限的系统设置功能”，请在设置界面中查找并设置！",Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+
+    //===== 打开设置通知的渠道界面 ==
+    private void gotoSetNFChannel(String ChannelID){
+        Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+        intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+        intent.putExtra(Settings.EXTRA_CHANNEL_ID, ChannelID);
+        startActivity(intent);
     }
 
 

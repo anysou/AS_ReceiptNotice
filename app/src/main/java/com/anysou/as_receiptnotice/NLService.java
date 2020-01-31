@@ -96,6 +96,13 @@ public class NLService extends NotificationListenerService implements AsyncRespo
             //return;
         }
 
+        Log.d("test","收到通知 0");
+        if(!pkg.contains(getPackageName())) {
+            Log.d("test","收到通知 1");
+            NotificationRun notificationRun = new NotificationRun(this);
+            notificationRun.NCSend(this, NotificationChannels.DEFAULT_ID, 0, "检测到一个通知", pkg, false, null, 2, true);
+            Log.d("test","收到通知 2");
+        }
         /*
         int NFid = sbn.getId();                //获取通知id
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
