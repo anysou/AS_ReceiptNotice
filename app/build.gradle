@@ -18,7 +18,25 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // add start
+//            android.applicationVariants.all { variant ->
+//                variant.outputs.all { output ->
+//                    // 自定义输出路径
+//                    variant.getPackageApplication().outputDirectory = new File(project.rootDir.absolutePath + File.separator)
+//                    // 自定义文件
+//                    def outputFile = output.outputFile
+//                    if(outputFile !=null && outputFile.name.endsWith('.apk')){
+//                        outputFileName = "AS_ReceiptNotice.apk"
+//                    }
+//                }
+//            }
+            // add over
         }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 
 }
@@ -39,6 +57,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     //OkHttp是一个高效的HTTP客户端
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    //桌面图标显示通知消息的数量
+    //implementation "me.leolin:ShortcutBadger:1.1.22@aar"
 
     implementation 'com.google.android.material:material:1.0.0'
 

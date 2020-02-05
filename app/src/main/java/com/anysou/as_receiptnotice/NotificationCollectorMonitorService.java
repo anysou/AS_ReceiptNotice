@@ -133,12 +133,13 @@ public class NotificationCollectorMonitorService extends Service {
         // 获取当前激活的服务对象
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         boolean collectorRunning = false;
-        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE); // 列出所有服务
+        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE); // 列出所有服务(只会列出本APP的服务)
         if (runningServices == null ) {
             Log.w(TAG, "当前的服务列表为空");
             return;
         }
         for (ActivityManager.RunningServiceInfo service : runningServices) {
+            Log.w(TAG,""+service.service);
             if (service.service.equals(collectorComponent)) {
                 Log.w(TAG, "要确保运行的服务组件 - pid: " + service.pid + ", currentPID: " + Process.myPid() + ", clientPackage: " + service.clientPackage + ", clientCount: " + service.clientCount
                         + ", clientLabel: " + ((service.clientLabel == 0) ? "0" : "(" + getResources().getString(service.clientLabel) + ")"));

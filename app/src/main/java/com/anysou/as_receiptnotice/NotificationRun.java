@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.widget.Toast;
 
@@ -45,7 +47,7 @@ public class NotificationRun {
     public static Notification getNC(Context context,String channel_id,int smallIcon,String title,String text,Boolean autoCancel,PendingIntent pi,int id,boolean flags){
 
         if(smallIcon==0){
-            smallIcon = R.drawable.log_icon;
+            smallIcon = R.drawable.server;
         }
         if(title==null || title==""){
             title = "收款通知";
@@ -63,13 +65,23 @@ public class NotificationRun {
 
         // 构建 Notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(smallIcon)   //设置通知左侧的小图标
-                .setContentTitle(title)   //设置通知标题
+
+        //设置通知左侧的小图标
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
+            builder.setSmallIcon(R.drawable.service_nf);
+            builder.setColor(Color.parseColor("#EAA935"));  //设置背景色
+        } else {
+            builder.setSmallIcon(R.drawable.server);
+        }
+
+        builder.setContentTitle(title)   //设置通知标题
                 .setContentText(text)     //设置通知内容
                 .setAutoCancel(autoCancel)   //设置点击通知后自动删除通知
                 .setContentIntent(pi)     //设置点击通知时的响应事件
                 .setPriority(Notification.PRIORITY_HIGH)  //优先级
                 .setWhen(System.currentTimeMillis())      //设置时间,long类型自动转换
+
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_notifiation_big))//设置通知右侧的大图标
                 .setDefaults(Notification.DEFAULT_ALL);
         //兼容  API 16    android 4.1 Jelly Bean    果冻豆
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){

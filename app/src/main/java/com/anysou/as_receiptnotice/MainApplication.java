@@ -38,6 +38,7 @@ public class MainApplication extends Application {
     public static int LANGUAGEID = 0;                  //语言ID 0=英语 1=简体 2=繁体 [可用于一些不语言的数组索引序号]
     public static int activityCount = 0;               //Activity开启的数量
     public static Boolean NCRun = false;               //通知监听服务是否启动
+    public static int badgeCount = 0;                  //徽章通知数量计数
 
     private LocalBroadcastReceiver localReceiver = new LocalBroadcastReceiver();  //本地广播接收器
     private LocalBroadcastManager localBroadcastManager = null;   //本地广播管理器

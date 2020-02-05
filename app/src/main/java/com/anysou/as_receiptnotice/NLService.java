@@ -19,6 +19,7 @@ import com.jeremyliao.liveeventbus.LiveEventBus;
 
 import java.util.Map;
 
+
 /**
  *  通知监听服务： 继承：NotificationListenerService， 接口：AsyncResponse, IDoPost, ActionStatusBarNotification
  *  1、注册通知监听服务，并设置权限；  2、启动本服务，等待通知。 3、获取通知权限的判断及打开通知权限设置页面；
@@ -95,6 +96,10 @@ public class NLService extends NotificationListenerService implements AsyncRespo
             LogUtil.debugLog("该通知是不可清除的，包名="+pkg);
             //return;
         }
+
+        //桌面图标显示通知消息的数量
+//        MainApplication.badgeCount += 1;
+//        ShortcutBadger.applyCount(context, MainApplication.badgeCount); //for 1.1.4+
 
         Log.d("test","收到通知 0");
         if(!pkg.contains(getPackageName())) {

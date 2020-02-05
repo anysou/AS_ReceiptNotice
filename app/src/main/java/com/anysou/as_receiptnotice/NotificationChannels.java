@@ -83,6 +83,9 @@ canShowBadge()—检索来自此通道的通知是否能够在启动器应用程
         defaultChannel.setDescription("这是监听收款的通道");
         defaultChannel.setShowBadge(true);   //设置显示徽章
         defaultChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);  //设置是否应在锁定屏幕上显示来自此通道的通知
+        defaultChannel.enableLights(true);//是否在桌面icon右上角展示小红点
+        defaultChannel.setLightColor(Color.GREEN);//小红点颜色
+        defaultChannel.setShowBadge(true); //是否在久按桌面图标时显示此渠道的通知
 
 
         // 建立所有通道

@@ -8,11 +8,13 @@ import androidx.lifecycle.Observer;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
@@ -99,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MainApplication.getCMS(true),"该方法首句");
 
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);  //隐藏标题栏
         setContentView(R.layout.activity_main);
 
         Lid = MainApplication.LANGUAGEID;
@@ -121,12 +126,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //sendLocalBroadcast("主程序启动成功！");
+
+        //现在部分手机(或大部分或只是个案)安装新APP后会默认不开启“锁屏通知权限” ，让客户手动去打开权限他还不乐意，一直找如何去动态申请权限，最后发现其实不需要申请权限，只需要几句话就好
+        Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED //锁屏状态下显示
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD    //解锁
+                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON      //保持屏幕长亮
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);    //打开屏幕
     }
 
 
     //初始化所有的组件及数据
     private void initView() {
-        //第一个参数（name）用于指定文件的名称，若指定的文件不存在则创建一个；第二个参数（mode）用于指定操作模式，MODE_PRIVATE 该配置文件只能被自己的应用程序访问。
+        //第一个参数（name）用于指定文件的名称，若指定的文件不存在则建一个；第二个参数（mode）用于指定操作模式，MODE_PRIVATE 该配置文件只能被自己的应用程序访问。
         sp = getSharedPreferences(MainApplication.SP_NAME, Context.MODE_PRIVATE);
 
         // 工具导航栏
@@ -173,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     private String getPostUrl(){
         String posturlpath;
         posturlpath = sp.getString(MainApplication.POSTURL, "");
-        if (posturlpath==null)
+        if (posturlpath==null || posturlpath=="")
             return null;
         else
             return posturlpath;
@@ -234,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             //Toast.makeText(this,L_NSOK[Lid],Toast.LENGTH_SHORT).show();
             Toast.makeText(this,this.getString(R.string.text_NSOK),Toast.LENGTH_SHORT).show();
+            //finish();
         }
     }
 

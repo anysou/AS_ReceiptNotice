@@ -22,6 +22,8 @@ allprojects {
         jcenter()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
         maven { url 'https://jitpack.io' }
+        //桌面图标显示通知消息的数量
+        //mavenCentral()
     }
 }
 

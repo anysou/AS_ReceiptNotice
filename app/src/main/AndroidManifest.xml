@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.anysou.as_receiptnotice">
     <!--
+    android权限（permission）大全   https://www.cnblogs.com/luoruiyuan/p/6475547.html
     定位、获取手机信息（手机号、IMEI、IMSI）、读取应用列表、相机、录音、读写手机存储、锁屏显示、后台弹出界面、显示悬浮窗、常驻通知
 
     GPS定位信息 (可伪造，来自Android.Permission.FINE_LOCATION)
@@ -49,7 +50,7 @@
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/server"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"

@@ -19,7 +19,9 @@ public class PreferenceUtil {
     }
 
     //getDefaultSharedPreferences： 1）获取到全局作用域的preference (包名一 样的可以取到) 2）将使用默认名称，如“包名_Preferences”
-    public void init() { sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context); }
+    public void init() {
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context);
+    }
 
 
 
