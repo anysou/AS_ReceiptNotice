@@ -2,20 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.anysou.as_receiptnotice">
     <!--
-    android权限（permission）大全   https://www.cnblogs.com/luoruiyuan/p/6475547.html
+    android权限（permission）大全   https://www.jianshu.com/p/2b26abfaeacd
     定位、获取手机信息（手机号、IMEI、IMSI）、读取应用列表、相机、录音、读写手机存储、锁屏显示、后台弹出界面、显示悬浮窗、常驻通知
-
-    GPS定位信息 (可伪造，来自Android.Permission.FINE_LOCATION)
-　　基站定位   (可伪造，来自Android.Permission.COARSE_LOCATION)
-　　系统自带浏览器的历史，书签(Android.Permission.BOOKMARKS)
-　　联系人    (android.permission.READ_CONTACTS)
-　　通话记录   (android.permission.READ_CONTACTS)
-　　系统日志   (android.permission.READ_LOGS)
-　　当前账户列表   (android.permission.GET_ACCOUNTS)
-　　当前账户的授权码  (android.permission.USE_CREDENTIALS)
-　　短信，彩信 (可能与这5个权限有关) android.permission.READ_SMS、android.permission.RECEIVE_SMS
-　　　　android.permission.SEND_SMS、android.permission.WRITE_SMS、android.permission.RECEIVE_MMS
-　　日历    android.permission.READ_CALENDAR
     -->
 
     <!--Android各种访问权限Permission详解: https://www.jianshu.com/p/f6f17befbd17 -->
@@ -40,7 +28,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
-    <!-- 只允许访问https，不能直接访问http。处理方法在application 加 networkSecurityConfig
+    <!-- android9.0以后，只允许访问https，不能直接访问http。处理方法在application 加 networkSecurityConfig
          name = MainApplication 首先启动。
          theme = @style/Theme.AppCompat.Light.NoActionBar 主题
          标题文字： 英文 -> res\values\strings.xml  中文 -> res\values-zh\strings.xml
