@@ -1,0 +1,33 @@
+<resources>
+        <string name="app_name">收款古精靈</string>
+        <string name="text_setting">設置</string>
+        <string name="text_clearlog">清空日誌</string>
+        <string name="text_reverseshow">反序排序</string>
+        <string name="text_home_fragment_tip">願妳賺錢多多！</string>
+        <string name="text_home_fragment_nexttip">左滑切換到收款記錄</string>
+        <string name="filelog_title">推送記錄</string>
+        <string name="illustratedecrypt_title">解密说明</string>
+        <string name="buttontext_setposturl">設置推送POST地址</string>
+        <string name="text_language">語言</string>
+        <string name="text_language_en">英文</string>
+        <string name="text_language_cn">簡體中文</string>
+        <string name="text_language_hk">繁體中文</string>
+        <string name="channel_critical">重大事件</string>
+        <string name="channel_default">默認事件</string>
+        <string name="text_NSOK">通知欄監聽服務已開啟!</string>
+        <string name="text_SETURL">設置POST地址為：</string>
+        <string name="text_NSSQTS_1">溫馨提示：</string>
+        <string name="text_NSSQTS_2">當前您未授權本系統讀取通知欄權限，請前往授權後再繼續操作！</string>
+        <string name="text_NSSQTS_3">前往授權</string>
+
+        <string-array name="pref_entries_encryptmethod">
+                <item>des</item>
+                <item>md5</item>
+        </string-array>
+
+        <string-array name="pref_entryvalues_encryptmethod">
+                <item>des</item>
+                <item>md5</item>
+        </string-array>
+
+</resources>

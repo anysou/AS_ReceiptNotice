@@ -1,0 +1,33 @@
+<resources>
+        <string name="app_name">收款古精灵</string>
+        <string name="text_setting">设置</string>
+        <string name="text_clearlog">清空日志</string>
+        <string name="text_reverseshow">反向排序</string>
+        <string name="text_home_fragment_tip">愿你赚钱多多！</string>
+        <string name="text_home_fragment_nexttip">左滑切换到收款记录</string>
+        <string name="filelog_title">推送记录</string>
+        <string name="illustratedecrypt_title">解密说明</string>
+        <string name="buttontext_setposturl">设置推送POST地址</string>
+        <string name="text_language">语言</string>
+        <string name="text_language_en">英文</string>
+        <string name="text_language_cn">简体中文</string>
+        <string name="text_language_hk">繁体中文</string>
+        <string name="channel_critical">重大事件</string>
+        <string name="channel_default">默认事件</string>
+        <string name="text_NSOK">通知栏监听服务已开启!</string>
+        <string name="text_SETURL">设置POST地址为：</string>
+        <string name="text_NSSQTS_1">温馨提示:</string>
+        <string name="text_NSSQTS_2">当前您未授权本系统读取通知栏权限，请前往授权后再继续操作！</string>
+        <string name="text_NSSQTS_3">前往授权</string>
+
+        <string-array name="pref_entries_encryptmethod">
+                <item>des</item>
+                <item>md5</item>
+        </string-array>
+
+        <string-array name="pref_entryvalues_encryptmethod">
+                <item>des</item>
+                <item>md5</item>
+        </string-array>
+
+</resources>
